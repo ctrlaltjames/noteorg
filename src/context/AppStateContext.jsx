@@ -6,6 +6,15 @@ import { useFileSystem } from './FileSystemContext';
 
 const AppStateContext = createContext(null);
 
+const DEFAULT_SETTINGS = {
+  theme: 'light',
+  fontSize: 14,
+  autoSaveInterval: 2000,
+  wordWrap: true,
+  showLineNumbers: true,
+  tabSize: 2,
+};
+
 export function AppStateProvider({ children }) {
   const fileSystem = useFileSystem();
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +31,20 @@ export function AppStateProvider({ children }) {
   const [tagEditorMode, setTagEditorMode] = useState('create');
   const [tagEditorValue, setTagEditorValue] = useState('');
   const [sidebarTab, setSidebarTab] = useState('explorer');
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('noteorg-settings');
+      return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+    } catch {
+      return DEFAULT_SETTINGS;
+    }
+  });
+  const [showSettings, setShowSettings] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [imageViewer, setImageViewer] = useState({ show: false, src: '', alt: '' });
+  const [saveState, setSaveState] = useState('saved');
+  const [saveError, setSaveError] = useState(null);
+  const [lastSaveTime, setLastSaveTime] = useState(null);
   const searchTimeoutRef = useRef(null);
   const searchIndexRef = useRef(null);
   const notesRef = useRef([]);
@@ -34,6 +57,18 @@ export function AppStateProvider({ children }) {
       searchIndexRef.current = cached.index;
       notesRef.current = cached.notes;
     }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('noteorg-settings', JSON.stringify(settings));
+    } catch {
+      // storage full or unavailable
+    }
+  }, [settings]);
+
+  const updateSettings = useCallback((newSettings) => {
+    setSettings((prev) => ({ ...prev, ...newSettings }));
   }, []);
 
   const rebuildIndex = useCallback(async () => {
@@ -212,6 +247,31 @@ export function AppStateProvider({ children }) {
     }
   }, [noteTitles]);
 
+  const handleQuickSave = useCallback(async () => {
+    if (!selectedNote || !fileSystem) return;
+    const content = noteContents[selectedNote.path];
+    if (!content) return;
+    try {
+      setSaveState('saving');
+      const success = await fileSystem.writeFile(selectedNote.path, content);
+      if (success) {
+        setSaveState('saved');
+        setLastSaveTime(Date.now());
+        setSaveError(null);
+      } else {
+        setSaveState('error');
+        setSaveError('Write failed');
+      }
+    } catch (err) {
+      setSaveState('error');
+      setSaveError(err.message);
+    }
+  }, [selectedNote, fileSystem, noteContents]);
+
+  const handleOpenImage = useCallback((src, alt = '') => {
+    setImageViewer({ show: true, src, alt });
+  }, []);
+
   const value = {
     searchQuery,
     searchResults,
@@ -241,6 +301,24 @@ export function AppStateProvider({ children }) {
     noteTags,
     handleUpdateNoteTags,
     rebuildIndex,
+    settings,
+    updateSettings,
+    showSettings,
+    setShowSettings,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    imageViewer,
+    setImageViewer: (img) => setImageViewer(typeof img === 'function' ? img(imageViewer) : img),
+    handleOpenImage,
+    saveState,
+    setSaveState,
+    saveError,
+    setSaveError,
+    lastSaveTime,
+    setLastSaveTime,
+    handleQuickSave,
+    noteContents,
+    setNoteContents,
   };
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

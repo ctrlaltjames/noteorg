@@ -3,13 +3,24 @@ import { useFileSystem } from '../../context/FileSystemContext';
 import { useAppState } from '../../context/AppStateContext';
 import Sidebar from './Sidebar';
 import MainArea from './MainArea';
+import Toolbar from './Toolbar';
 import FolderPicker from '../Modals/FolderPicker';
 import TagEditor from '../Modals/TagEditor';
-import SearchBar from '../Search/SearchBar';
+import SettingsModal from '../Modals/SettingsModal';
+import ImageViewer from '../Modals/ImageViewer';
 
 export default function AppLayout() {
   const { directoryHandle, openDirectory } = useFileSystem();
-  const { selectedNote, handleSelectNote, sidebarTab, setSidebarTab, setSearchOpen } = useAppState();
+  const {
+    selectedNote,
+    handleSelectNote,
+    sidebarTab,
+    setSidebarTab,
+    setSearchOpen,
+    showSettings,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+  } = useAppState();
   const [showFolderPicker, setShowFolderPicker] = useState(!directoryHandle);
 
   useEffect(() => {
@@ -33,38 +44,35 @@ export default function AppLayout() {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Top bar */}
-      <header className="h-12 bg-white border-b border-gray-200 flex items-center px-4 gap-3 shrink-0">
-        <h1 className="text-lg font-semibold text-gray-900">NoteOrg</h1>
-        {directoryHandle && (
-          <span className="text-sm text-gray-500 truncate max-w-md">
-            {'\u{1F4C1}'} {directoryHandle.name}
-          </span>
-        )}
-        <div className="flex-1" />
-        <SearchBar />
-        {!directoryHandle && (
-          <button
-            onClick={() => setShowFolderPicker(true)}
-            className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Choose Folder
-          </button>
-        )}
-      </header>
+      {/* Top toolbar */}
+      <Toolbar />
 
       {/* Main content area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar
-          activeTab={sidebarTab}
-          onTabChange={setSidebarTab}
-          selectedPath={selectedNote?.path}
-          onSelect={handleSelectNoteItem}
-        />
+        {/* Sidebar - responsive: overlay on mobile, inline on desktop */}
+        <div
+          className={`${
+            sidebarCollapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'
+          } lg:translate-x-0 fixed lg:relative inset-y-0 left-0 z-30 lg:z-0 w-64 shrink-0 transform transition-transform duration-200 ease-in-out`}
+        >
+          <Sidebar
+            activeTab={sidebarTab}
+            onTabChange={setSidebarTab}
+            selectedPath={selectedNote?.path}
+            onSelect={handleSelectNoteItem}
+          />
+        </div>
+
+        {/* Sidebar overlay for mobile */}
+        {sidebarCollapsed || (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/20 z-20"
+            onClick={() => setSidebarCollapsed(true)}
+          />
+        )}
 
         {/* Main panel */}
-        <MainArea />
+        <MainArea className="flex-1 lg:ml-0" />
       </div>
 
       {/* Folder picker modal */}
@@ -74,6 +82,12 @@ export default function AppLayout() {
 
       {/* Tag editor modal */}
       <TagEditor />
+
+      {/* Settings modal */}
+      {showSettings && <SettingsModal />}
+
+      {/* Image viewer */}
+      <ImageViewer />
     </div>
   );
 }

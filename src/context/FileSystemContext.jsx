@@ -3,9 +3,28 @@ import { useContext, useState, useCallback } from 'preact/hooks';
 
 const FileSystemContext = createContext(null);
 
+const TOAST_TYPES = {
+  success: { color: 'bg-green-600', icon: 'M5 13l4 4L19 7' },
+  error: { color: 'bg-red-600', icon: 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+  info: { color: 'bg-blue-600', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+};
+
 export function FileSystemProvider({ children }) {
   const [directoryHandle, setDirectoryHandle] = useState(null);
   const [handleCache, setHandleCache] = useState(new Map());
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback((message, type = 'info') => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   const getHandle = useCallback(async (parent, name) => {
     const cacheKey = `${parent?.name || 'root'}/${name}`;
@@ -17,65 +36,90 @@ export function FileSystemProvider({ children }) {
 
   const openDirectory = useCallback(async () => {
     if (!('showDirectoryPicker' in window)) {
+      addToast('File System Access API is not available in this browser.', 'error');
       throw new Error('File System Access API is not available in this browser.');
     }
-    const handle = await window.showDirectoryPicker();
-    setDirectoryHandle(handle);
-    setHandleCache(new Map([[handle.name, handle]]));
-    return handle;
-  }, []);
+    try {
+      const handle = await window.showDirectoryPicker();
+      setDirectoryHandle(handle);
+      setHandleCache(new Map([[handle.name, handle]]));
+      window._folderName = handle.name;
+      addToast(`Opened folder: ${handle.name}`, 'success');
+      return handle;
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        addToast(`Failed to open folder: ${err.message}`, 'error');
+      }
+      throw err;
+    }
+  }, [addToast]);
 
   const readFile = useCallback(async (path) => {
     if (!directoryHandle) return null;
-    const parts = path.split('/').filter(Boolean);
-    let current = directoryHandle;
+    try {
+      const parts = path.split('/').filter(Boolean);
+      let current = directoryHandle;
 
-    for (let i = 0; i < parts.length - 1; i++) {
-      const dirHandle = await current.getDirectoryHandle(parts[i]);
-      current = dirHandle;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const dirHandle = await current.getDirectoryHandle(parts[i]);
+        current = dirHandle;
+      }
+
+      const fileHandle = await current.getFileHandle(parts[parts.length - 1]);
+      const file = await fileHandle.getFile();
+      return await file.text();
+    } catch (err) {
+      addToast(`Failed to read "${path}": ${err.message}`, 'error');
+      return null;
     }
-
-    const fileHandle = await current.getFileHandle(parts[parts.length - 1]);
-    const file = await fileHandle.getFile();
-    return await file.text();
-  }, [directoryHandle]);
+  }, [directoryHandle, addToast]);
 
   const writeFile = useCallback(async (path, content) => {
     if (!directoryHandle) return false;
-    const parts = path.split('/').filter(Boolean);
-    let current = directoryHandle;
+    try {
+      const parts = path.split('/').filter(Boolean);
+      let current = directoryHandle;
 
-    for (let i = 0; i < parts.length - 1; i++) {
-      const dirName = parts[i];
-      try {
-        current = await current.getDirectoryHandle(dirName, { create: true });
-      } catch (e) {
-        current = await current.getDirectoryHandle(dirName);
+      for (let i = 0; i < parts.length - 1; i++) {
+        const dirName = parts[i];
+        try {
+          current = await current.getDirectoryHandle(dirName, { create: true });
+        } catch (e) {
+          current = await current.getDirectoryHandle(dirName);
+        }
       }
-    }
 
-    const fileName = parts[parts.length - 1];
-    const fileHandle = await current.getFileHandle(fileName, { create: true });
-    const writable = await fileHandle.createWritable();
-    await writable.write(content);
-    await writable.close();
-    return true;
-  }, [directoryHandle]);
+      const fileName = parts[parts.length - 1];
+      const fileHandle = await current.getFileHandle(fileName, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      return true;
+    } catch (err) {
+      addToast(`Failed to write "${path}": ${err.message}`, 'error');
+      return false;
+    }
+  }, [directoryHandle, addToast]);
 
   const createDirectory = useCallback(async (path) => {
     if (!directoryHandle) return false;
-    const parts = path.split('/').filter(Boolean);
-    let current = directoryHandle;
+    try {
+      const parts = path.split('/').filter(Boolean);
+      let current = directoryHandle;
 
-    for (const part of parts) {
-      try {
-        current = await current.getDirectoryHandle(part, { create: true });
-      } catch (e) {
-        current = await current.getDirectoryHandle(part);
+      for (const part of parts) {
+        try {
+          current = await current.getDirectoryHandle(part, { create: true });
+        } catch (e) {
+          current = await current.getDirectoryHandle(part);
+        }
       }
+      return true;
+    } catch (err) {
+      addToast(`Failed to create directory "${path}": ${err.message}`, 'error');
+      return false;
     }
-    return true;
-  }, [directoryHandle]);
+  }, [directoryHandle, addToast]);
 
   const listDirectory = useCallback(async (path) => {
     if (!directoryHandle) return [];
@@ -134,6 +178,7 @@ export function FileSystemProvider({ children }) {
   const getValue = useCallback(() => {
     return {
       directoryHandle,
+      toasts,
       openDirectory,
       readFile,
       writeFile,
@@ -141,11 +186,30 @@ export function FileSystemProvider({ children }) {
       listDirectory,
       getFileHandle,
     };
-  }, [directoryHandle, openDirectory, readFile, writeFile, createDirectory, listDirectory, getFileHandle]);
+  }, [directoryHandle, toasts, openDirectory, readFile, writeFile, createDirectory, listDirectory, getFileHandle]);
 
   return (
     <FileSystemContext.Provider value={getValue()}>
       {children}
+      {/* Toast container */}
+      <div className="fixed bottom-4 right-4 z-[2000] space-y-2" aria-live="polite">
+        {toasts.map((toast) => {
+          const style = TOAST_TYPES[toast.type] || TOAST_TYPES.info;
+          return (
+            <div
+              key={toast.id}
+              className={`${style.color} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[250px] max-w-[400px] animate-slideUp`}
+              onClick={() => removeToast(toast.id)}
+              role="alert"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={style.icon} />
+              </svg>
+              <span className="text-sm flex-1">{toast.message}</span>
+            </div>
+          );
+        })}
+      </div>
     </FileSystemContext.Provider>
   );
 }
