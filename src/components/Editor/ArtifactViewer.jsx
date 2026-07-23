@@ -18,13 +18,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     setEditContent(artifact.content || '');
   }, [artifact.id]);
 
-  // Auto-resize textarea
-  useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  }, [isEditing, editContent]);
+  // Remove auto-resize - textarea now fills available height via flex
 
   const handleSave = async () => {
     if (saving) return;
@@ -99,7 +93,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
         </div>
 
         {/* Edit form */}
-        <div class="flex-1 p-4 overflow-hidden">
+        <div class="flex-1 p-4 overflow-hidden flex flex-col">
           <input
             type="text"
             value={editTitle}
@@ -112,7 +106,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             placeholder="Start writing..."
-            class="w-full min-h-[200px] resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono"
+            class="w-full flex-1 min-h-0 resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono"
             spellCheck
           />
         </div>
