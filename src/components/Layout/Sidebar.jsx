@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useState, useRef, useEffect } from 'preact/hooks';
 import { useApp } from '@context/AppContext';
 import ArtifactList from './ArtifactList';
 
@@ -17,6 +17,16 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
   } = useApp();
 
   const [showFilters, setShowFilters] = useState(false);
+  const searchTimeout = useRef(null);
+
+  // Live search with debounce
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      fetchArtifacts(searchQuery, activeTag, activeFolder);
+    }, 300);
+    return () => clearTimeout(searchTimeout.current);
+  }, [searchQuery, activeTag, activeFolder]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
