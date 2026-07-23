@@ -103,7 +103,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     return (
       <div class="h-full flex flex-col" onKeyDown={handleKeyDown}>
         {/* Edit header */}
-        <div class="flex items-center gap-2 p-3 border-b border-dark-border shrink-0">
+        <div class="flex items-center justify-between p-3 border-b border-dark-border shrink-0">
           <div class="flex items-center gap-1">
             <button
               onClick={onCancelEdit}
@@ -116,45 +116,46 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
             </button>
             <span class="text-sm text-dark-secondary capitalize">{artifact.type}</span>
           </div>
-          <div class="w-px h-5 bg-dark-border" />
-          <button
-            onClick={() => setShowSplit(!showSplit)}
-            class={`p-2 rounded transition-colors ${showSplit ? 'text-dark-text' : 'text-dark-secondary'} hover:bg-white/5 hover:text-yellow-300`}
-            title="Toggle split view"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-              <line x1="12" y1="3" x2="12" y2="21" />
-            </svg>
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || !editTitle.trim()}
-            class="text-dark-secondary hover:text-primary-dark disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded transition-colors hover:bg-white/5"
-            title="Save (Ctrl+S)"
-          >
-            {saving ? (
-              <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" strokeDasharray="60" strokeDashoffset="15" />
-              </svg>
-            ) : (
+          <div class="flex items-center gap-1">
+            <button
+              onClick={() => setShowSplit(!showSplit)}
+              class={`p-2 rounded transition-colors ${showSplit ? 'text-dark-text' : 'text-dark-secondary'} hover:bg-white/5 hover:text-yellow-300`}
+              title="Toggle split view"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                <polyline points="17 21 17 13 7 13 7 21" />
-                <polyline points="7 3 7 8 15 8" />
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="12" y1="3" x2="12" y2="21" />
               </svg>
-            )}
-          </button>
-          <button
-            onClick={handleDelete}
-            class="text-dark-secondary hover:text-danger-dark p-2 rounded transition-colors hover:bg-white/5"
-            title="Delete"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-          </button>
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving || !editTitle.trim()}
+              class="text-dark-secondary hover:text-primary-dark disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded transition-colors hover:bg-white/5"
+              title="Save (Ctrl+S)"
+            >
+              {saving ? (
+                <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" strokeDasharray="60" strokeDashoffset="15" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+              )}
+            </button>
+            <button
+              onClick={handleDelete}
+              class="text-dark-secondary hover:text-danger-dark p-2 rounded transition-colors hover:bg-white/5"
+              title="Delete"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
