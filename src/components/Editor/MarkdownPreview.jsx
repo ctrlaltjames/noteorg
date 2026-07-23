@@ -52,8 +52,14 @@ export default function MarkdownPreview({ content }) {
       return;
     }
 
-    const tokens = marked.lexer(content, { highlight: null });
-    const out = marked.parser(tokens, { highlight: null });
+    const out = marked.parse(content, {
+      async: false,
+      breaks: true,
+      gfm: true,
+      highlight(code, lang) {
+        return highlightCode(code, lang);
+      },
+    });
     setHtml(out);
   }, [content]);
 
