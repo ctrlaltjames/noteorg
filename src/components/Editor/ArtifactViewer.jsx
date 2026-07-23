@@ -10,7 +10,9 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const [editContent, setEditContent] = useState(artifact.content || '');
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [cursorLine, setCursorLine] = useState(1);
   const textareaRef = useRef(null);
+  const gutterRef = useRef(null);
 
   // Update local state when artifact changes
   useEffect(() => {
@@ -18,7 +20,34 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     setEditContent(artifact.content || '');
   }, [artifact.id]);
 
-  // Remove auto-resize - textarea now fills available height via flex
+  const getLineNumbers = (text) => {
+    if (!text) return [1];
+    const lines = text.split('\n');
+    const count = lines.length;
+    if (text.endsWith('\n')) return Array.from({ length: count + 1 }, (_, i) => i + 1);
+    return Array.from({ length: count }, (_, i) => i + 1);
+  };
+
+  const getCurrentLine = (text, cursorPos) => {
+    if (!text) return 1;
+    const beforeCursor = text.substring(0, cursorPos);
+    const lines = beforeCursor.split('\n');
+    return lines.length;
+  };
+
+  const handleCursorMove = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    setCursorLine(getCurrentLine(textarea.value, textarea.selectionStart));
+  };
+
+  const handleScroll = () => {
+    const textarea = textareaRef.current;
+    const gutter = gutterRef.current;
+    if (textarea && gutter) {
+      gutter.scrollTop = textarea.scrollTop;
+    }
+  };
 
   const handleSave = async () => {
     if (saving) return;
@@ -101,14 +130,34 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
             placeholder="Artifact title..."
             class="w-full text-xl font-bold bg-transparent border-none outline-none mb-3 text-dark-text"
           />
-          <textarea
-            ref={textareaRef}
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            placeholder="Start writing..."
-            class="w-full flex-1 min-h-0 resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono"
-            spellCheck
-          />
+          <div class="flex-1 min-h-0 relative border border-dark-border/30 rounded">
+            <div
+              ref={gutterRef}
+              class="absolute left-0 top-0 bottom-0 w-12 bg-dark-card text-dark-secondary/40 text-sm font-mono text-right select-none overflow-hidden py-3 border-r border-dark-border/20 z-10"
+            >
+              {getLineNumbers(editContent).map((line) => (
+                <div
+                  key={line}
+                  class={`flex items-center justify-end h-[1.625rem] px-2 ${line === cursorLine ? 'text-dark-text/80 font-semibold bg-dark-border/20' : ''}`}
+                >
+                  {line}
+                </div>
+              ))}
+            </div>
+            <textarea
+              ref={textareaRef}
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              onClick={handleCursorMove}
+              onKeyUp={handleCursorMove}
+              onSelect={handleCursorMove}
+              onScroll={handleScroll}
+              placeholder="Start writing..."
+              class="w-full h-full resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono pl-14 p-3"
+              spellCheck
+              style={{ lineHeight: '1.625rem' }}
+            />
+          </div>
         </div>
       </div>
     );
