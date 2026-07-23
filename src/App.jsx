@@ -1,7 +1,9 @@
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { AppProvider } from './context/AppContext';
 import LoginPage from './components/Auth/LoginPage';
 import Header from './components/Layout/Header';
+import AppLayout from './components/Layout/AppLayout';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -19,9 +21,9 @@ function AppContent() {
       <Header />
       <main class="flex-1 overflow-hidden">
         {user ? (
-          <div class="flex items-center justify-center h-full text-dark-secondary">
-            <p>Coming soon — Phase 2: Artifact management</p>
-          </div>
+          <AppProvider user={user}>
+            <AppLayout />
+          </AppProvider>
         ) : (
           <LoginPage />
         )}

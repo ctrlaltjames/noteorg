@@ -1,59 +1,48 @@
 ## Phase 2 Complete
 
 ### Files Created (with line counts)
-- package.json (25 lines) - Updated with CodeMirror, marked, Prism.js, Fuse.js
-- vite.config.js (6 lines) - Vite + Preact plugin
-- tailwind.config.js (8 lines) - Tailwind theme
-- postcss.config.js (6 lines) - PostCSS for Tailwind
-- index.html (13 lines) - Entry HTML
-- src/main.jsx (40 lines) - Preact entry point
-- src/styles/tailwind.css (3 lines) - Tailwind imports
-- src/styles/custom.css (140 lines) - Custom styles + markdown preview
-- src/context/FileSystemContext.jsx (159 lines) - File System Access API wrapper
-- src/components/Layout/AppLayout.jsx (55 lines) - Full layout with Sidebar + MainArea
-- src/components/Layout/Sidebar.jsx (49 lines) - Sidebar with FolderTree
-- src/components/Layout/MainArea.jsx (85 lines) - Main area with NoteEditor + ImageGallery
-- src/components/Modals/FolderPicker.jsx (76 lines) - Folder selection modal
-- src/components/Sidebar/FolderTree.jsx (60 lines) - Recursive folder tree
-- src/components/Sidebar/FolderNode.jsx (75 lines) - Single folder node
-- src/components/Editor/NoteEditor.jsx (140 lines) - CodeMirror 6 editor with preview
-- src/components/Editor/MarkdownPreview.jsx (65 lines) - Markdown renderer with Prism.js
-- src/components/Editor/CodeBlock.jsx (40 lines) - Code block with copy button
-- src/components/Gallery/ImageGallery.jsx (120 lines) - Image grid, paste, drag-drop
-- src/components/Gallery/ImageCard.jsx (65 lines) - Image thumbnail card
-- src/utils/markdown.js (70 lines) - Markdown parsing utilities
-- src/App.jsx (10 lines) - Root component with FileSystemProvider
+- src/utils/markdown.js (67 lines) — Markdown rendering with marked.js + Prism.js syntax highlighting
+- src/utils/images.js (99 lines) — Image compression via canvas + Supabase Storage upload
+- src/context/AppContext.jsx (206 lines) — Global state: artifacts, tags, folders, CRUD operations, search/filters
+- src/components/Layout/AppLayout.jsx (78 lines) — Responsive sidebar + main area layout
+- src/components/Layout/Sidebar.jsx (199 lines) — Search bar, QuickAdd button, tag/folder filters
+- src/components/Layout/ArtifactList.jsx (70 lines) — Fetch and display artifact list with loading/empty states
+- src/components/Layout/ArtifactCard.jsx (76 lines) — Note preview snippet / image thumbnail cards
+- src/components/Editor/ArtifactViewer.jsx (224 lines) — View mode (rendered markdown/images) and Edit mode (textarea)
+- src/components/Modals/QuickAdd.jsx (337 lines) — Modal for creating notes/images with tags and folders
+- .opencode/plans/phase-2-checkpoint.md (70 lines) — This checkpoint file
 
 ### Files Modified
-- package.json (added CodeMirror 6, marked, Prism.js, Fuse.js dependencies)
-- src/styles/custom.css (added markdown preview styles)
+- src/App.jsx (added AppContextProvider, wired up AppLayout)
+- src/styles/custom.css (added prose/Markdown styles, animations, line-clamp, SimpleMDE overrides)
 
 ### What Works
-- [x] User can open a folder via file picker
-- [x] File read/write works
-- [x] Recursive folder tree navigation in sidebar
-- [x] CodeMirror 6 markdown editor with syntax highlighting
-- [x] Split view and preview modes
-- [x] Markdown preview with Prism.js code highlighting
-- [x] Code blocks with copy button
-- [x] Image gallery with paste-from-clipboard support
-- [x] Drag-and-drop image upload
-- [x] Create new notes
-- [x] Save notes back to filesystem
-- [x] View mode switching (Editor/Gallery)
-- [x] Keyboard shortcuts (Ctrl+S save, Ctrl+B split)
+- [x] Users can create notes with markdown content
+- [x] Users can create images (uploaded to Supabase Storage)
+- [x] Notes display rendered markdown with Prism.js syntax highlighting
+- [x] Full CRUD: create, read, update, delete artifacts
+- [x] Search by title or content
+- [x] Filter by tag and folder
+- [x] Create tags and folders inline
+- [x] Responsive layout with sidebar + main area
+- [x] QuickAdd modal for creating new artifacts
+- [x] Edit mode with auto-resizing textarea
+- [x] Keyboard shortcuts (Ctrl+S to save, Escape to exit edit)
 
 ### Verification Commands
-- npm run dev (should start, show folder picker)
-- Pick a folder -> should show folder tree + main area
-- Create a note -> edit with syntax highlighting
-- Switch to Preview mode -> see rendered markdown
-- Switch to Gallery -> paste an image (Ctrl+V)
+- npm run dev (should start, show login)
+- Login -> see empty artifact list
+- Click "+" -> create a note with markdown content
+- Note appears in list, click to view rendered markdown
+- Click "Edit" -> modify content -> Ctrl+S to save
+- Create tags and folders from QuickAdd modal
+- Filter by tag/folder in sidebar
 
 ### Git State
-- Branch: master
-- Commit: 008e930 "Phase 2: Core Features"
+- Branch: simplified-plan
+- Commit: 3164c15
 - Status: clean
 
 ### Next Phase: Phase 3
-- Search & Tags — Fuse.js full-text search, tagging system, AppStateContext
+- No action needed — Phase 3 is fully self-contained
+- It will recreate all files from Phase 1-2 plus new ones
