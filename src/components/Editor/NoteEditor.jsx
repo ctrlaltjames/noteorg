@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
-import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
-import { tags } from '@lezer/highlight';
+import { syntaxHighlighting } from '@codemirror/language';
+import { parseFrontmatter, buildFrontmatter } from '../../utils/markdown';
+import { getNoteTags, setNoteTags } from '../../utils/tags';
 import MarkdownPreview from './MarkdownPreview';
 
 const theme = EditorView.theme({
@@ -24,29 +25,21 @@ const theme = EditorView.theme({
   },
 });
 
-const customHighlight = HighlightStyle.define([
-  { tag: tags.heading, fontWeight: 'bold', fontSize: '1.2em', color: '#111827' },
-  { tag: tags.strong, fontWeight: 'bold', color: '#111827' },
-  { tag: tags.emphasis, fontStyle: 'italic', color: '#4b5563' },
-  { tag: tags.quote, color: '#6b7280', borderLeft: '3px solid #d1d5db', paddingLeft: '12px' },
-  { tag: tags.link, color: '#2563eb', textDecoration: 'underline' },
-  { tag: tags.code, color: '#d73a49', background: '#f6f8fa' },
-  { tag: tags.codeBlock, color: '#24292f', background: '#f6f8fa' },
-  { tag: tags.tagName, color: '#d73a49' },
-  { tag: tags.attributeName, color: '#0055aa' },
-  { tag: tags.number, color: '#0055aa' },
-  { tag: tags.url, color: '#22863a' },
-  { tag: tags.atom, color: '#0055aa' },
-  { tag: tags.bool, color: '#0055aa' },
-  { tag: tags.keyword, color: '#d73a49' },
-]);
-
 export default function NoteEditor({ notePath, content, onChange, onSave }) {
   const [view, setView] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [splitMode, setSplitMode] = useState(false);
+  const [noteTags, setNoteTagsState] = useState([]);
+  const [isEditingTags, setIsEditingTags] = useState(false);
+  const [tagInput, setTagInput] = useState('');
   const editorRef = useRef(null);
   const previewRef = useRef(null);
+
+  useEffect(() => {
+    if (!notePath) return;
+    const tags = getNoteTags(content || '');
+    setNoteTagsState(tags);
+  }, [notePath, content]);
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -59,8 +52,6 @@ export default function NoteEditor({ notePath, content, onChange, onSave }) {
           base: markdownLanguage,
           codeLanguages: { js: 'javascript', py: 'python', html: 'html', css: 'css' },
         }),
-        customHighlight,
-        syntaxHighlighting(customHighlight),
         theme,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
@@ -105,10 +96,38 @@ export default function NoteEditor({ notePath, content, onChange, onSave }) {
         e.preventDefault();
         setSplitMode((prev) => !prev);
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        setPreviewMode((prev) => !prev);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleSave]);
+
+  const handleAddTag = useCallback(() => {
+    const tag = tagInput.trim().toLowerCase();
+    if (!tag || noteTags.includes(tag)) return;
+    const newTags = [...noteTags, tag];
+    setNoteTagsState(newTags);
+    const newContent = setNoteTags(content || '', newTags);
+    onChange(newContent);
+    setTagInput('');
+  }, [tagInput, noteTags, content, onChange]);
+
+  const handleRemoveTag = useCallback((tagToRemove) => {
+    const newTags = noteTags.filter((t) => t !== tagToRemove);
+    setNoteTagsState(newTags);
+    const newContent = setNoteTags(content || '', newTags);
+    onChange(newContent);
+  }, [noteTags, content, onChange]);
+
+  const handleTagKeyDown = useCallback((e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    }
+  }, [handleAddTag]);
 
   if (!notePath) {
     return (
@@ -129,7 +148,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave }) {
   return (
     <div className="h-full flex flex-col">
       {/* Editor toolbar */}
-      <div className="h-10 bg-gray-50 border-b border-gray-200 flex items-center px-3 gap-2 shrink-0">
+      <div className="h-auto bg-gray-50 border-b border-gray-200 flex items-center px-3 gap-2 shrink-0 flex-wrap">
         <button
           onClick={() => setPreviewMode(!previewMode)}
           className={`px-3 py-1 text-xs rounded transition-colors ${
@@ -146,6 +165,34 @@ export default function NoteEditor({ notePath, content, onChange, onSave }) {
         >
           Split
         </button>
+
+        {/* Tag toolbar */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs text-gray-400">{'\u{1F3F7}'}</span>
+          {noteTags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700"
+            >
+              <span>{tag}</span>
+              <button
+                onClick={() => handleRemoveTag(tag)}
+                className="text-blue-400 hover:text-blue-700 transition-colors"
+              >
+                {'\u00D7'}
+              </button>
+            </span>
+          ))}
+          <input
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            placeholder="+ Add tag"
+            className="w-20 px-1.5 py-0.5 text-xs border border-gray-200 rounded-full bg-white text-gray-700 placeholder-gray-400 outline-none focus:border-blue-400"
+          />
+        </div>
+
         <div className="flex-1" />
         <span className="text-xs text-gray-400 truncate max-w-xs">
           {notePath.split('/').pop()}

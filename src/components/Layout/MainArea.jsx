@@ -1,26 +1,32 @@
 import { useState, useCallback, useEffect } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
+import { useAppState } from '../../context/AppStateContext';
 import NoteEditor from '../Editor/NoteEditor';
 import ImageGallery from '../Gallery/ImageGallery';
 
 export default function MainArea() {
   const { readFile, writeFile } = useFileSystem();
-  const [selectedNote, setSelectedNote] = useState(null);
+  const { selectedNote, handleSelectNote, sidebarTab, setSidebarTab, noteTags, handleUpdateNoteTags } = useAppState();
   const [content, setContent] = useState('');
   const [viewMode, setViewMode] = useState('note');
   const [saving, setSaving] = useState(false);
 
-  const handleSelectNote = useCallback(async (item) => {
+  useEffect(() => {
+    if (selectedNote?.name.endsWith('.md')) {
+      setViewMode('note');
+    }
+  }, [selectedNote]);
+
+  const handleSelectNoteItem = useCallback(async (item) => {
     if (!item.name.endsWith('.md')) return;
-    setSelectedNote(item);
-    setViewMode('note');
+    handleSelectNote(item);
     try {
       const text = await readFile(item.path);
       setContent(text || '');
     } catch (e) {
       setContent('');
     }
-  }, [readFile]);
+  }, [readFile, handleSelectNote]);
 
   const handleSave = useCallback(async () => {
     if (!selectedNote || !content) return;
@@ -41,13 +47,13 @@ export default function MainArea() {
     try {
       await writeFile(name, defaultContent);
       const newItem = { name, path: name, kind: 'file' };
-      setSelectedNote(newItem);
+      handleSelectNote(newItem);
       setContent(defaultContent);
       setViewMode('note');
     } catch (e) {
       // ignore
     }
-  }, [writeFile]);
+  }, [writeFile, handleSelectNote]);
 
   return (
     <main className="flex-1 flex flex-col overflow-hidden bg-white">

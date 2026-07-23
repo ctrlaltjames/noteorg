@@ -1,16 +1,30 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
+import { useAppState } from '../../context/AppStateContext';
 import Sidebar from './Sidebar';
 import MainArea from './MainArea';
 import FolderPicker from '../Modals/FolderPicker';
+import TagEditor from '../Modals/TagEditor';
+import SearchBar from '../Search/SearchBar';
 
 export default function AppLayout() {
   const { directoryHandle, openDirectory } = useFileSystem();
+  const { selectedNote, handleSelectNote, sidebarTab, setSidebarTab, setSearchOpen } = useAppState();
   const [showFolderPicker, setShowFolderPicker] = useState(!directoryHandle);
-  const [selectedPath, setSelectedPath] = useState(null);
 
-  const handleSelectNote = (item) => {
-    setSelectedPath(item.path);
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [setSearchOpen]);
+
+  const handleSelectNoteItem = (item) => {
+    handleSelectNote(item);
   };
 
   const handleOpenFolder = () => {
@@ -20,14 +34,15 @@ export default function AppLayout() {
   return (
     <div className="h-screen flex flex-col">
       {/* Top bar */}
-      <header className="h-12 bg-white border-b border-gray-200 flex items-center px-4 shrink-0">
+      <header className="h-12 bg-white border-b border-gray-200 flex items-center px-4 gap-3 shrink-0">
         <h1 className="text-lg font-semibold text-gray-900">NoteOrg</h1>
         {directoryHandle && (
-          <span className="ml-4 text-sm text-gray-500 truncate max-w-md">
-            📁 {directoryHandle.name}
+          <span className="text-sm text-gray-500 truncate max-w-md">
+            {'\u{1F4C1}'} {directoryHandle.name}
           </span>
         )}
         <div className="flex-1" />
+        <SearchBar />
         {!directoryHandle && (
           <button
             onClick={() => setShowFolderPicker(true)}
@@ -42,8 +57,10 @@ export default function AppLayout() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <Sidebar
-          selectedPath={selectedPath}
-          onSelect={handleSelectNote}
+          activeTab={sidebarTab}
+          onTabChange={setSidebarTab}
+          selectedPath={selectedNote?.path}
+          onSelect={handleSelectNoteItem}
         />
 
         {/* Main panel */}
@@ -54,6 +71,9 @@ export default function AppLayout() {
       {showFolderPicker && (
         <FolderPicker onClose={() => setShowFolderPicker(false)} />
       )}
+
+      {/* Tag editor modal */}
+      <TagEditor />
     </div>
   );
 }

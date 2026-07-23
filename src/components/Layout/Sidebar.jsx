@@ -1,21 +1,20 @@
-import { useState, useCallback } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
 import FolderTree from '../Sidebar/FolderTree';
+import TagPanel from '../Sidebar/TagPanel';
 
-export default function Sidebar({ selectedPath, onSelect }) {
+export default function Sidebar({ activeTab, onTabChange, selectedPath, onSelect }) {
   const { directoryHandle, openDirectory } = useFileSystem();
-  const [activeTab, setActiveTab] = useState('explorer');
 
-  const handlePickFolder = useCallback(() => {
+  const handlePickFolder = () => {
     openDirectory().catch(() => {});
-  }, [openDirectory]);
+  };
 
   return (
     <aside className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
       {/* Tabs */}
       <div className="h-10 border-b border-gray-200 flex items-center px-2 gap-1 shrink-0">
         <button
-          onClick={() => setActiveTab('explorer')}
+          onClick={() => onTabChange('explorer')}
           className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
             activeTab === 'explorer'
               ? 'bg-gray-200 text-gray-900'
@@ -24,15 +23,29 @@ export default function Sidebar({ selectedPath, onSelect }) {
         >
           Explorer
         </button>
+        <button
+          onClick={() => onTabChange('tags')}
+          className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+            activeTab === 'tags'
+              ? 'bg-gray-200 text-gray-900'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          Tags
+        </button>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {directoryHandle ? (
-          <FolderTree
-            selectedPath={selectedPath}
-            onSelect={onSelect}
-          />
+          activeTab === 'explorer' ? (
+            <FolderTree
+              selectedPath={selectedPath}
+              onSelect={onSelect}
+            />
+          ) : (
+            <TagPanel />
+          )
         ) : (
           <div className="p-4">
             <button
