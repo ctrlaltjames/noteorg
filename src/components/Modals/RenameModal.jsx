@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect } from 'preact/hooks';
+import { useState, useCallback, useEffect, useRef } from 'preact/hooks';
 import { useAppState } from '../../context/AppStateContext';
 
 export default function RenameModal() {
   const { renameModal, handleCloseRename, handleSaveRename } = useAppState();
   const [localName, setLocalName] = useState('');
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (renameModal.show) {
@@ -11,6 +12,7 @@ export default function RenameModal() {
         ? '.md'
         : renameModal.currentName.match(/\.[^.]+$/)?.[0] || '';
       setLocalName(renameModal.currentName.replace(ext, ''));
+      setTimeout(() => inputRef.current?.focus(), 0);
     }
   }, [renameModal]);
 
@@ -65,13 +67,13 @@ export default function RenameModal() {
               File Name
             </label>
             <input
+              ref={inputRef}
               type="text"
               value={localName}
               onChange={(e) => setLocalName(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="File name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              autoFocus
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <p className="text-xs text-gray-400 mb-4">
