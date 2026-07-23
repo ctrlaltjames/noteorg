@@ -120,7 +120,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           <div class="w-px h-5 bg-dark-border" />
           <button
             onClick={() => setShowSplit(!showSplit)}
-            class={`p-2 rounded transition-colors ${showSplit ? 'text-dark-text' : 'text-dark-secondary'} hover:bg-white/5 hover:text-yellow-300`}
+            class={`p-1.5 rounded transition-colors ${showSplit ? 'text-dark-text' : 'text-dark-secondary'} hover:bg-white/5 hover:text-yellow-300`}
             title="Toggle split view"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -131,7 +131,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           <button
             onClick={handleSave}
             disabled={saving || !editTitle.trim()}
-            class="text-dark-secondary hover:text-primary-dark disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded transition-colors hover:bg-white/5"
+            class="text-dark-secondary hover:text-primary-dark disabled:opacity-50 disabled:cursor-not-allowed p-1.5 rounded transition-colors hover:bg-white/5"
             title="Save (Ctrl+S)"
           >
             {saving ? (
@@ -148,7 +148,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           </button>
           <button
             onClick={handleDelete}
-            class="text-dark-secondary hover:text-danger-dark p-2 rounded transition-colors hover:bg-white/5"
+            class="text-dark-secondary hover:text-danger-dark p-1.5 rounded transition-colors hover:bg-white/5"
             title="Delete"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
