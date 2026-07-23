@@ -354,7 +354,11 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
         e.preventDefault();
-        setSplitMode((prev) => !prev);
+        setSplitMode((prev) => {
+          const next = !prev;
+          if (next) setPreviewMode(true);
+          return next;
+        });
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
         e.preventDefault();
@@ -460,7 +464,13 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
           Preview
         </button>
         <button
-          onClick={() => setSplitMode(!splitMode)}
+          onClick={() => {
+            setSplitMode((prev) => {
+              const next = !prev;
+              if (next) setPreviewMode(true);
+              return next;
+            });
+          }}
           title={`Split (Ctrl+B)`}
           className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
             splitMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-200'
