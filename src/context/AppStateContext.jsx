@@ -45,6 +45,7 @@ export function AppStateProvider({ children }) {
   const [saveState, setSaveState] = useState('saved');
   const [saveError, setSaveError] = useState(null);
   const [lastSaveTime, setLastSaveTime] = useState(null);
+  const [renameModal, setRenameModal] = useState({ show: false, path: '', currentName: '' });
   const searchTimeoutRef = useRef(null);
   const searchIndexRef = useRef(null);
   const notesRef = useRef([]);
@@ -236,6 +237,63 @@ export function AppStateProvider({ children }) {
     setShowTagEditor(false);
   }, [tagEditorMode, tagEditorValue, handleRemoveTag]);
 
+  const handleOpenRename = useCallback((path, currentName) => {
+    setRenameModal({ show: true, path, currentName });
+  }, []);
+
+  const handleCloseRename = useCallback(() => {
+    setRenameModal({ show: false, path: '', currentName: '' });
+  }, []);
+
+  const handleSaveRename = useCallback(async (newName) => {
+    const { path, currentName } = renameModal;
+    if (!path || !newName || newName === currentName) {
+      handleCloseRename();
+      return;
+    }
+    const newContent = noteContents[path];
+    if (newContent === undefined) {
+      handleCloseRename();
+      return;
+    }
+    const success = await fileSystem.writeFile(newName, newContent);
+    if (success) {
+      if (selectedNote?.path === path) {
+        setSelectedNote({ path: newName, name: newName });
+      }
+      setNoteTitles((prev) => {
+        const next = { ...prev };
+        if (next[path]) {
+          next[newName] = next[path];
+          delete next[path];
+        }
+        return next;
+      });
+      setNoteTags((prev) => {
+        const next = { ...prev };
+        if (next[path]) {
+          next[newName] = next[path];
+          delete next[path];
+        }
+        return next;
+      });
+      setNoteContents((prev) => {
+        const next = { ...prev };
+        if (next[path] !== undefined) {
+          next[newName] = next[path];
+          delete next[path];
+        }
+        return next;
+      });
+      await fileSystem.deleteFile(path);
+      notesRef.current = notesRef.current.map((n) =>
+        n.path === path ? { ...n, path: newName, name: newName } : n
+      );
+      searchIndexRef.current = indexNotes(notesRef.current);
+    }
+    handleCloseRename();
+  }, [renameModal, fileSystem, noteContents, selectedNote, handleCloseRename]);
+
   const handleUpdateNoteTags = useCallback((notePath, tags) => {
     setNoteTags((prev) => ({ ...prev, [notePath]: tags }));
     if (noteTitles[notePath]) {
@@ -319,6 +377,10 @@ export function AppStateProvider({ children }) {
     handleQuickSave,
     noteContents,
     setNoteContents,
+    renameModal,
+    handleOpenRename,
+    handleCloseRename,
+    handleSaveRename,
   };
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

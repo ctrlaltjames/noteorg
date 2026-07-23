@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
 
-export default function FolderNode({ item, depth, onSelect, onContext, selectedPath }) {
+export default function FolderNode({ item, depth, onSelect, onContext, onRename, selectedPath }) {
   const { listDirectory } = useFileSystem();
   const [expanded, setExpanded] = useState(false);
   const [children, setChildren] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [menuPos, setMenuPos] = useState(null);
 
   const isSelected = selectedPath === item.path;
   const isExpanded = expanded || (item.kind === 'directory' && depth < 2);
@@ -22,8 +23,33 @@ export default function FolderNode({ item, depth, onSelect, onContext, selectedP
   const handleContextMenu = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
-    onContext(item, e);
+    if (item.kind === 'file') {
+      setMenuPos({ x: e.clientX, y: e.clientY });
+    } else if (onContext) {
+      onContext(item, e);
+    }
   }, [item, onContext]);
+
+  const handleRename = useCallback(() => {
+    if (onRename && item.kind === 'file') {
+      const fname = item.name;
+      const fpath = item.path;
+      setMenuPos(null);
+      onRename(fpath, fname);
+    }
+  }, [onRename, item]);
+
+  useEffect(() => {
+    if (menuPos) {
+      const closeMenu = () => setMenuPos(null);
+      window.addEventListener('pointerdown', closeMenu);
+      window.addEventListener('contextmenu', closeMenu);
+      return () => {
+        window.removeEventListener('pointerdown', closeMenu);
+        window.removeEventListener('contextmenu', closeMenu);
+      };
+    }
+  }, [menuPos]);
 
   const handleExpand = useCallback(async () => {
     if (expanded || loading || children.length > 0) return;
@@ -53,8 +79,32 @@ export default function FolderNode({ item, depth, onSelect, onContext, selectedP
         ? '🖼️'
         : '📄';
 
+  const contextMenu = menuPos && item.kind === 'file' ? (
+    <>
+      <div
+        className="fixed inset-0 z-40"
+        onClick={() => setMenuPos(null)}
+      />
+      <div
+        className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 min-w-[180px]"
+        style={{ left: menuPos.x, top: menuPos.y }}
+      >
+        <button
+          onClick={handleRename}
+          className="w-full px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-3.586l-7.586 7.586a1.414 1.414 0 000 2l2.828 2.828a1.414 1.414 0 002 0l7.586-7.586a1.414 1.414 0 000-2l-2.828-2.828a1.414 1.414 0 00-2 0z" />
+          </svg>
+          Rename
+        </button>
+      </div>
+    </>
+  ) : null;
+
   return (
     <div>
+      {contextMenu}
       <div
         className={`flex items-center gap-1.5 px-2 py-1 rounded-md cursor-pointer text-sm transition-colors ${
           isSelected

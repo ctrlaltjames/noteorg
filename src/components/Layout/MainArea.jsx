@@ -10,6 +10,8 @@ export default function MainArea() {
   const [content, setContent] = useState('');
   const [viewMode, setViewMode] = useState('note');
   const [saving, setSaving] = useState(false);
+  const [newNoteName, setNewNoteName] = useState('');
+  const [showNewNoteInput, setShowNewNoteInput] = useState(false);
 
   useEffect(() => {
     if (selectedNote?.name.endsWith('.md')) {
@@ -40,9 +42,20 @@ export default function MainArea() {
     }
   }, [selectedNote, content, writeFile]);
 
-  const handleCreateNote = useCallback(async () => {
-    const name = `note-${Date.now()}.md`;
-    const defaultContent = `---\ntitle: "Untitled"\ntags: []\ncreated: ${new Date().toISOString().split('T')[0]}\n---\n\nStart writing...\n`;
+  const handleCreateNote = useCallback(() => {
+    setNewNoteName('');
+    setShowNewNoteInput(true);
+  }, []);
+
+  const handleConfirmCreateNote = useCallback(async () => {
+    let name = newNoteName.trim();
+    if (!name) {
+      name = `note-${Date.now()}.md`;
+    } else if (!name.endsWith('.md')) {
+      name += '.md';
+    }
+    setShowNewNoteInput(false);
+    const defaultContent = `---\ntitle: "${name.replace('.md', '').replace(/-/g, ' ')}"\ntags: []\ncreated: ${new Date().toISOString().split('T')[0]}\n---\n\nStart writing...\n`;
 
     try {
       await writeFile(name, defaultContent);
@@ -53,7 +66,12 @@ export default function MainArea() {
     } catch (e) {
       // ignore
     }
-  }, [writeFile, handleSelectNote]);
+  }, [newNoteName, writeFile, handleSelectNote]);
+
+  const handleCancelCreateNote = useCallback(() => {
+    setShowNewNoteInput(false);
+    setNewNoteName('');
+  }, []);
 
   const handleDelete = useCallback(async () => {
     if (!selectedNote) return;
@@ -71,12 +89,41 @@ export default function MainArea() {
     <main className="flex-1 flex flex-col overflow-hidden bg-white">
       {/* Toolbar */}
       <div className="h-10 bg-white border-b border-gray-200 flex items-center px-3 gap-2 shrink-0">
-        <button
-          onClick={handleCreateNote}
-          className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
-        >
-          <span>+</span> New Note
-        </button>
+        {showNewNoteInput ? (
+          <>
+            <input
+              type="text"
+              value={newNoteName}
+              onChange={(e) => setNewNoteName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleConfirmCreateNote();
+                if (e.key === 'Escape') handleCancelCreateNote();
+              }}
+              placeholder="note-name.md"
+              className="px-2 py-1 text-xs border border-blue-400 rounded bg-white text-gray-700 placeholder-gray-400 outline-none focus:ring-1 focus:ring-blue-500 w-36"
+              autoFocus
+            />
+            <button
+              onClick={handleConfirmCreateNote}
+              className="px-2 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Create
+            </button>
+            <button
+              onClick={handleCancelCreateNote}
+              className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded transition-colors"
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={handleCreateNote}
+            className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
+          >
+            <span>+</span> New Note
+          </button>
+        )}
 
         {selectedNote && (
           <>

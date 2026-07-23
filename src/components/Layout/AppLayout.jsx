@@ -6,6 +6,7 @@ import MainArea from './MainArea';
 import Toolbar from './Toolbar';
 import FolderPicker from '../Modals/FolderPicker';
 import TagEditor from '../Modals/TagEditor';
+import RenameModal from '../Modals/RenameModal';
 import SettingsModal from '../Modals/SettingsModal';
 import ImageViewer from '../Modals/ImageViewer';
 
@@ -20,6 +21,7 @@ export default function AppLayout() {
     showSettings,
     sidebarCollapsed,
     setSidebarCollapsed,
+    handleOpenRename,
   } = useAppState();
   const [showFolderPicker, setShowFolderPicker] = useState(false);
 
@@ -60,6 +62,7 @@ export default function AppLayout() {
             onTabChange={setSidebarTab}
             selectedPath={selectedNote?.path}
             onSelect={handleSelectNoteItem}
+            onRename={handleOpenRename}
           />
         </div>
 
@@ -82,6 +85,9 @@ export default function AppLayout() {
 
       {/* Tag editor modal */}
       <TagEditor />
+
+      {/* Rename modal */}
+      <RenameModal />
 
       {/* Settings modal */}
       {showSettings && <SettingsModal />}

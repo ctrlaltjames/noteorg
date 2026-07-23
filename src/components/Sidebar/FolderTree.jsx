@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
 import FolderNode from './FolderNode';
 
-export default function FolderTree({ selectedPath, onSelect }) {
+export default function FolderTree({ selectedPath, onSelect, onRename }) {
   const { listDirectory, refreshKey } = useFileSystem();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +33,6 @@ export default function FolderTree({ selectedPath, onSelect }) {
   );
 
   const handleContext = useCallback((item, e) => {
-    // Context menu placeholder
     e.preventDefault();
   }, []);
 
@@ -64,6 +63,7 @@ export default function FolderTree({ selectedPath, onSelect }) {
           depth={0}
           onSelect={handleSelect}
           onContext={handleContext}
+          onRename={onRename}
           selectedPath={selectedPath}
         />
       ))}

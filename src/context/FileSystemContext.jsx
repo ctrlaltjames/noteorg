@@ -214,6 +214,36 @@ export function FileSystemProvider({ children }) {
     }
   }, [directoryHandle, addToast, triggerRefresh]);
 
+  const renameFile = useCallback(async (oldPath, newName) => {
+    if (!directoryHandle) return false;
+    try {
+      const parts = oldPath.split('/').filter(Boolean);
+      const fileName = parts.pop();
+      const dirPath = parts.join('/');
+
+      let current = directoryHandle;
+      if (dirPath) {
+        const dirParts = dirPath.split('/');
+        for (const part of dirParts) {
+          current = await current.getDirectoryHandle(part);
+        }
+      }
+
+      const content = await current.getFileHandle(fileName).then(h => h.getFile()).then(f => f.text());
+      const newHandle = await current.getFileHandle(newName, { create: true });
+      const writable = await newHandle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      await current.removeEntry(fileName);
+      triggerRefresh();
+      addToast(`Renamed to "${newName}"`, 'success');
+      return true;
+    } catch (err) {
+      addToast(`Failed to rename: ${err.message}`, 'error');
+      return false;
+    }
+  }, [directoryHandle, addToast, triggerRefresh]);
+
   const getValue = useCallback(() => {
     return {
       directoryHandle,
@@ -225,10 +255,11 @@ export function FileSystemProvider({ children }) {
       writeFile,
       createDirectory,
       deleteFile,
+      renameFile,
       listDirectory,
       getFileHandle,
     };
-  }, [directoryHandle, toasts, lastFolderName, refreshKey, openDirectory, readFile, writeFile, createDirectory, deleteFile, listDirectory, getFileHandle]);
+  }, [directoryHandle, toasts, lastFolderName, refreshKey, openDirectory, readFile, writeFile, createDirectory, deleteFile, renameFile, listDirectory, getFileHandle]);
 
   return (
     <FileSystemContext.Provider value={getValue()}>

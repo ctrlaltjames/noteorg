@@ -2,7 +2,7 @@ import { useFileSystem } from '../../context/FileSystemContext';
 import FolderTree from '../Sidebar/FolderTree';
 import TagPanel from '../Sidebar/TagPanel';
 
-export default function Sidebar({ activeTab, onTabChange, selectedPath, onSelect }) {
+export default function Sidebar({ activeTab, onTabChange, selectedPath, onSelect, onRename }) {
   const { directoryHandle, lastFolderName, openDirectory } = useFileSystem();
 
   const handlePickFolder = () => {
@@ -42,6 +42,7 @@ export default function Sidebar({ activeTab, onTabChange, selectedPath, onSelect
             <FolderTree
               selectedPath={selectedPath}
               onSelect={onSelect}
+              onRename={onRename}
             />
           ) : (
             <TagPanel />
