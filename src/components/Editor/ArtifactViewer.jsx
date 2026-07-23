@@ -148,12 +148,8 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
               ref={textareaRef}
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              onClick={handleCursorMove}
-              onKeyUp={handleCursorMove}
-              onSelect={handleCursorMove}
-              onScroll={handleScroll}
               placeholder="Start writing..."
-              class="w-full h-full resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono pl-14 p-3"
+              class="absolute left-12 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono p-3"
               spellCheck
               style={{ lineHeight: '1.625rem' }}
             />
