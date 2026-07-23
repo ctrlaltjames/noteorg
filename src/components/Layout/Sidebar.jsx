@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import { useApp } from '@context/AppContext';
 import ArtifactList from './ArtifactList';
 
-export default function Sidebar({ onOpenQuickAdd, onArtifactSelect }) {
+export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifact, onDeleteArtifact }) {
   const {
     searchQuery,
     setSearchQuery,
@@ -191,7 +191,11 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect }) {
 
       {/* Artifact list */}
       <div class="flex-1 overflow-hidden">
-        <ArtifactList onArtifactSelect={onArtifactSelect} />
+        <ArtifactList
+          onArtifactSelect={onArtifactSelect}
+          onEditArtifact={onEditArtifact}
+          onDeleteArtifact={onDeleteArtifact}
+        />
       </div>
     </div>
   );

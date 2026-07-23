@@ -5,7 +5,7 @@ import ArtifactViewer from '../Editor/ArtifactViewer';
 import QuickAddModal from '../Modals/QuickAdd';
 
 export default function AppLayout() {
-  const { selectedArtifact, setSelectedArtifact, loadData, refreshArtifact } = useApp();
+  const { selectedArtifact, setSelectedArtifact, loadData, refreshArtifact, deleteArtifact } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
 
@@ -17,6 +17,24 @@ export default function AppLayout() {
 
   const handleEdit = () => {
     setIsEditing(true);
+  };
+
+  const handleEditFromSidebar = (artifact) => {
+    setSelectedArtifact(artifact);
+    setIsEditing(true);
+  };
+
+  const handleDeleteFromSidebar = async (artifact) => {
+    try {
+      await deleteArtifact(artifact.id);
+      if (selectedArtifact?.id === artifact.id) {
+        setSelectedArtifact(null);
+        setIsEditing(false);
+      }
+      await loadData();
+    } catch (err) {
+      console.error('Failed to delete:', err);
+    }
   };
 
   const handleClose = () => {
@@ -40,7 +58,12 @@ export default function AppLayout() {
   return (
     <div class="flex h-full overflow-hidden">
       {/* Sidebar */}
-      <Sidebar onOpenQuickAdd={() => setShowQuickAdd(true)} onArtifactSelect={handleArtifactSelect} />
+      <Sidebar
+        onOpenQuickAdd={() => setShowQuickAdd(true)}
+        onArtifactSelect={handleArtifactSelect}
+        onEditArtifact={handleEditFromSidebar}
+        onDeleteArtifact={handleDeleteFromSidebar}
+      />
 
       {/* Main area */}
       <div class="flex-1 overflow-hidden">

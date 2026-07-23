@@ -2,7 +2,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { useApp } from '@context/AppContext';
 import ArtifactCard from './ArtifactCard';
 
-export default function ArtifactList({ onArtifactSelect }) {
+export default function ArtifactList({ onArtifactSelect, onEditArtifact, onDeleteArtifact }) {
   const { artifacts, loading, searchQuery, activeTag, activeFolder, fetchArtifacts } = useApp();
   const [localQuery, setLocalQuery] = useState(searchQuery);
 
@@ -62,6 +62,8 @@ export default function ArtifactList({ onArtifactSelect }) {
           artifact={artifact}
           isSelected={false}
           onClick={() => onArtifactSelect(artifact)}
+          onEdit={onEditArtifact ? () => onEditArtifact(artifact) : undefined}
+          onDelete={onDeleteArtifact ? () => onDeleteArtifact(artifact) : undefined}
         />
       ))}
     </div>

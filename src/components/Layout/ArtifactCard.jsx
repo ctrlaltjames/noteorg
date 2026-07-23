@@ -1,18 +1,45 @@
 import { getPreview } from '@utils/markdown';
 
-export default function ArtifactCard({ artifact, isSelected, onClick }) {
+export default function ArtifactCard({ artifact, isSelected, onClick, onEdit, onDelete }) {
   const isNote = artifact.type === 'note';
   const folderName = artifact.folder?.name || '';
 
   return (
     <div
       onClick={onClick}
-      class={`p-3 border-b border-dark-border cursor-pointer transition-colors ${
+      class={`group relative p-3 border-b border-dark-border cursor-pointer transition-colors ${
         isSelected
           ? 'bg-dark-panel border-l-2 border-l-accent-dark'
           : 'hover:bg-dark-border/30 border-l-2 border-l-transparent'
       }`}
     >
+      {/* Hover actions bar */}
+      <div class="absolute top-2 right-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        {onEdit && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(); }}
+            class="p-1.5 rounded transition-colors text-dark-secondary hover:text-accent-dark hover:bg-white/10"
+            title="Edit"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+        )}
+        {onDelete && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            class="p-1.5 rounded transition-colors text-dark-secondary hover:text-danger-dark hover:bg-white/10"
+            title="Delete"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        )}
+      </div>
       <div class="flex items-start gap-3">
         {/* Type icon */}
         <div class={`mt-0.5 shrink-0 ${isNote ? 'text-accent-dark' : 'text-primary-dark'}`}>
