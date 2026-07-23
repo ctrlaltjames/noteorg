@@ -21,7 +21,8 @@ export default function ContextMenu() {
   const handleRename = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    handleOpenRename(path);
+    const name = path.split('/').pop();
+    handleOpenRename(path, name);
     handleCloseContextMenu();
   };
 
