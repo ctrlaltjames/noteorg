@@ -8,93 +8,102 @@ import { parseFrontmatter, buildFrontmatter } from '../../utils/markdown';
 import { getNoteTags, setNoteTags } from '../../utils/tags';
 import MarkdownPreview from './MarkdownPreview';
 
+const DARK_MODE_CSS = `
+  #root.dark .cm-editor { color-scheme: dark; }
+  #root.dark .cm-editor .cm-content { color: #f9fafb !important; caret-color: #f9fafb; }
+  #root.dark .cm-editor .cm-line { color: #f9fafb !important; }
+  #root.dark .cm-editor .cm-scroller { caret-color: #f9fafb; }
+  #root.dark .cm-editor .cm-cursor { border-left-color: #f9fafb; }
+  #root.dark .cm-editor .cm-activeLine { background: #1f2937 !important; }
+  #root.dark .cm-editor .cm-focused { color: #f9fafb; }
+  #root.dark .cm-editor .cm-selectionBackground,
+  #root.dark .cm-editor .cm-selection { background: #2563eb !important; }
+  #root.dark .cm-editor .cm-line .cm-selection { background: #2563eb !important; }
+  #root.dark .cm-editor .cm-selectionMatch { background: #0d9488 !important; color: #fff !important; }
+  #root.dark .cm-editor .cm-matchingBracket { background: #527aff44 !important; color: #fff !important; }
+  #root.dark .cm-editor .cm-lineNumber { color: #4b5563 !important; font-size: 12px; }
+  #root.dark .cm-editor .cm-gutters { background: #0f172a !important; border-right: 1px solid #1e293b; color: #64748b; }
+  #root.dark .cm-editor .cm-tab { background: #1a1f2e !important; }
+  #root.dark .cm-editor .cm-gutter { background: #0f172a !important; }
+  #root.dark .cm-editor .cm-gutterMarker { color: #94a3b8; }
+  #root.dark .cm-editor .cm-tooltip-autocomplete { background: #0f172a !important; border: 1px solid #1e293b; color: #f1f5f9; }
+  #root.dark .cm-editor .cm-tooltip-autocomplete > div { padding: 4px 8px; }
+  #root.dark .cm-editor .cm-tooltip-autocomplete > div[aria-selected] { background: #1e3a5f !important; }
+  #root.dark .cm-editor .cm-panel { background: #0f172a !important; color: #f1f5f9; }
+  #root.dark .cm-editor .cm-panel search { color: #f1f5f9; }
+`;
+
 const editorTheme = EditorView.theme({
   '&': {
     height: '100%',
     fontSize: '14px',
   },
-  '.cm-content': {
+  '& .cm-content': {
     padding: '0',
     color: '#111827',
     lineHeight: '1.7',
   },
-  '.cm-line': {
+  '& .cm-line': {
     color: '#111827',
   },
-  '.cm-scroller': {
+  '& .cm-scroller': {
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
     lineHeight: '1.7',
     overflowX: 'auto',
   },
-  '.cm-cursor': {
+  '& .cm-cursor': {
     borderLeftColor: '#111827',
   },
-  '.cm-activeLine': {
+  '& .cm-activeLine': {
     background: 'transparent',
   },
-  '.cm-focused': {
+  '& .cm-focused': {
     outline: 'none',
   },
-  '.cm-selectionBackground': {
+  '& .cm-selectionBackground': {
     background: '#60a5fa',
   },
-  '.cm-selection': {
+  '& .cm-selection': {
     background: '#60a5fa',
   },
-  '.cm-line .cm-selection': {
+  '& .cm-line .cm-selection': {
     background: '#60a5fa',
   },
-  '.cm-selectionMatch': {
+  '& .cm-selectionMatch': {
     background: '#bfdbfe !important',
     color: '#1e40af',
   },
-  '.cm-matchingBracket': {
+  '& .cm-matchingBracket': {
     background: '#bfdbfe',
   },
-  '.cm-lineNumber': {
+  '& .cm-lineNumber': {
     color: '#9ca3af',
     fontSize: '12px',
   },
-  '.cm-gutters': {
+  '& .cm-gutters': {
     background: '#f9fafb',
     borderRight: '1px solid #e5e7eb',
     color: '#6b7280',
   },
-  '.cm-tooltip-autocomplete': {
+  '& .cm-tooltip-autocomplete': {
     background: '#ffffff',
     border: '1px solid #e5e7eb',
     borderRadius: '6px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
     fontSize: '13px',
   },
-  '.cm-tooltip-autocomplete > div': {
+  '& .cm-tooltip-autocomplete > div': {
     padding: '4px 8px',
   },
-  '.cm-tooltip-autocomplete > div[aria-selected]': {
+  '& .cm-tooltip-autocomplete > div[aria-selected]': {
     background: '#eff6ff',
   },
-  '.cm-panel': {
+  '& .cm-panel': {
     background: '#ffffff',
     color: '#111827',
   },
-  '.cm-panel search': {
+  '& .cm-panel search': {
     color: '#111827',
-  },
-  '.dark &': {
-    '.cm-content': { color: '#e5e7eb' },
-    '.cm-line': { color: '#e5e7eb' },
-    '.cm-cursor': { borderLeftColor: '#e5e7eb' },
-    '.cm-selectionBackground': { background: '#3b82f6' },
-    '.cm-selection': { background: '#3b82f6' },
-    '.cm-line .cm-selection': { background: '#3b82f6' },
-    '.cm-selectionMatch': { background: '#1e3a5f !important', color: '#93c5fd' },
-    '.cm-matchingBracket': { background: '#1e3a5f' },
-    '.cm-lineNumber': { color: '#6b7280', fontSize: '12px' },
-    '.cm-gutters': { background: '#111827', borderRight: '1px solid #374151', color: '#9ca3af' },
-    '.cm-tooltip-autocomplete': { background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' },
-    '.cm-tooltip-autocomplete > div[aria-selected]': { background: '#1e3a5f' },
-    '.cm-panel': { background: '#1f2937', color: '#e5e7eb' },
-    '.cm-panel search': { color: '#e5e7eb' },
   },
 });
 
@@ -307,6 +316,16 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   const previewRef = useRef(null);
   const viewRef = useRef(null);
   const lastSyncedContentRef = useRef('');
+
+  useEffect(() => {
+    let styleEl = document.getElementById('noteorg-editor-dark-mode');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'noteorg-editor-dark-mode';
+      styleEl.textContent = DARK_MODE_CSS;
+      document.head.appendChild(styleEl);
+    }
+  }, []);
 
   useEffect(() => {
     if (!notePath) return;
@@ -558,7 +577,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
         {/* Preview panel */}
         {previewMode && (
           <div className={`${splitMode ? 'w-1/2' : 'w-full'} h-full overflow-y-auto`}>
-            <div ref={previewRef} className="p-6 prose max-w-none">
+            <div ref={previewRef} className="p-6 prose max-w-none bg-white dark:bg-gray-900">
               <MarkdownPreview content={content || ''} />
             </div>
           </div>

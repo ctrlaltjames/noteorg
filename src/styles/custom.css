@@ -331,3 +331,130 @@ body {
   background-color: #111827 !important;
   color: #f9fafb !important;
 }
+
+#root.dark .markdown-preview {
+  color: #e5e7eb;
+}
+
+#root.dark .markdown-preview h1 {
+  color: #f9fafb;
+  border-bottom-color: #374151;
+}
+
+#root.dark .markdown-preview h2 {
+  color: #f3f4f6;
+}
+
+#root.dark .markdown-preview h3 {
+  color: #f3f4f6;
+}
+
+#root.dark .markdown-preview h4 {
+  color: #e5e7eb;
+}
+
+#root.dark .markdown-preview h5 {
+  color: #d1d5db;
+}
+
+#root.dark .markdown-preview h6 {
+  color: #9ca3af;
+}
+
+#root.dark .markdown-preview p {
+  color: #d1d5db;
+}
+
+#root.dark .markdown-preview a {
+  color: #60a5fa;
+}
+
+#root.dark .markdown-preview blockquote {
+  color: #9ca3af;
+  border-left-color: #4b5563;
+}
+
+#root.dark .markdown-preview code {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+#root.dark .markdown-preview pre code {
+  color: #e2e8f0;
+}
+
+#root.dark .markdown-preview hr {
+  border-top-color: #374151;
+}
+
+#root.dark .markdown-preview table {
+  border-color: #374151;
+}
+
+#root.dark .markdown-preview th,
+#root.dark .markdown-preview td {
+  border-color: #374151;
+}
+
+#root.dark .markdown-preview th {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+#root.dark .markdown-preview td {
+  color: #d1d5db;
+}
+
+#root.dark .markdown-preview .token.comment,
+#root.dark .markdown-preview .token.prolog,
+#root.dark .markdown-preview .token.doctype,
+#root.dark .markdown-preview .token.cdata {
+  color: #6b7280;
+}
+
+#root.dark .markdown-preview .token.punctuation {
+  color: #d1d5db;
+}
+
+#root.dark .markdown-preview .token.property,
+#root.dark .markdown-preview .token.tag,
+#root.dark .markdown-preview .token.boolean,
+#root.dark .markdown-preview .token.number,
+#root.dark .markdown-preview .token.constant,
+#root.dark .markdown-preview .token.symbol {
+  color: #7dd3fc;
+}
+
+#root.dark .markdown-preview .token.selector,
+#root.dark .markdown-preview .token.attr-name,
+#root.dark .markdown-preview .token.string,
+#root.dark .markdown-preview .token.char,
+#root.dark .markdown-preview .token.builtin {
+  color: #86efac;
+}
+
+#root.dark .markdown-preview .token.attr-value {
+  color: #fde68a;
+}
+
+#root.dark .markdown-preview .token.operator,
+#root.dark .markdown-preview .token.entity,
+#root.dark .markdown-preview .token.url {
+  color: #c084fc;
+}
+
+#root.dark .markdown-preview .token.atrule,
+#root.dark .markdown-preview .token.keyword {
+  color: #f472b6;
+}
+
+#root.dark .markdown-preview .token.function,
+#root.dark .markdown-preview .token.class-name {
+  color: #fbbf24;
+}
+
+#root.dark .markdown-preview .token.regex,
+#root.dark .markdown-preview .token.important,
+#root.dark .markdown-preview .token.variable {
+  color: #fb923c;
+}
