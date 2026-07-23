@@ -9,7 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "preact": "^10.24.3"
+    "@codemirror/lang-markdown": "^6.2.5",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.29.0",
+    "codemirror": "^6.0.1",
+    "fuse.js": "^7.0.0",
+    "marked": "^14.1.0",
+    "preact": "^10.24.3",
+    "prismjs": "^1.29.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.9.1",

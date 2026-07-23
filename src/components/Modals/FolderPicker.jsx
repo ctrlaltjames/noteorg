@@ -14,7 +14,6 @@ export default function FolderPicker({ onClose }) {
       onClose();
     } catch (e) {
       if (e.name === 'AbortError') {
-        // User cancelled — do nothing
         return;
       }
       setError(e.message || 'Failed to open folder. Please try again.');

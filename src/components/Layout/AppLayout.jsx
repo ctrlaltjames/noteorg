@@ -1,7 +1,21 @@
+import { useState } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
+import Sidebar from './Sidebar';
+import MainArea from './MainArea';
+import FolderPicker from '../Modals/FolderPicker';
 
 export default function AppLayout() {
-  const { directoryHandle } = useFileSystem();
+  const { directoryHandle, openDirectory } = useFileSystem();
+  const [showFolderPicker, setShowFolderPicker] = useState(!directoryHandle);
+  const [selectedPath, setSelectedPath] = useState(null);
+
+  const handleSelectNote = (item) => {
+    setSelectedPath(item.path);
+  };
+
+  const handleOpenFolder = () => {
+    setShowFolderPicker(true);
+  };
 
   return (
     <div className="h-screen flex flex-col">
@@ -13,53 +27,33 @@ export default function AppLayout() {
             📁 {directoryHandle.name}
           </span>
         )}
+        <div className="flex-1" />
+        {!directoryHandle && (
+          <button
+            onClick={() => setShowFolderPicker(true)}
+            className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Choose Folder
+          </button>
+        )}
       </header>
 
       {/* Main content area */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col overflow-hidden">
-          <div className="p-3 border-b border-gray-200">
-            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Explorer
-            </h2>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2">
-            <p className="text-sm text-gray-400 text-center mt-8">
-              {directoryHandle ? 'No items yet' : 'Select a folder to begin'}
-            </p>
-          </div>
-        </aside>
+        <Sidebar
+          selectedPath={selectedPath}
+          onSelect={handleSelectNote}
+        />
 
         {/* Main panel */}
-        <main className="flex-1 bg-white overflow-hidden">
-          {!directoryHandle ? (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-5xl mb-4">📝</div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  Welcome to NoteOrg
-                </h2>
-                <p className="text-gray-500 mb-6 max-w-sm">
-                  Select a folder on your machine to start organizing your notes, images, and code snippets.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-5xl mb-4">📂</div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  {directoryHandle.name}
-                </h2>
-                <p className="text-gray-500">
-                  Start creating notes or browsing your folder.
-                </p>
-              </div>
-            </div>
-          )}
-        </main>
+        <MainArea />
       </div>
+
+      {/* Folder picker modal */}
+      {showFolderPicker && (
+        <FolderPicker onClose={() => setShowFolderPicker(false)} />
+      )}
     </div>
   );
 }
