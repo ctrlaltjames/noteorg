@@ -316,11 +316,6 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
       }),
       markdown({
         base: markdownLanguage,
-        codeLanguages: {
-          js: 'javascript', py: 'python', html: 'html', css: 'css',
-          ts: 'typescript', bash: 'bash', sql: 'sql', rust: 'rust',
-          go: 'go', java: 'java', json: 'json',
-        },
       }),
       editorTheme,
       EditorView.editable.of(!!notePath),
@@ -544,20 +539,15 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
 
       {/* Editor area */}
       <div className="flex-1 overflow-hidden flex">
+        {/* Editor panel */}
         {(!previewMode || splitMode) && (
           <div className={`${splitMode ? 'w-1/2 border-r border-gray-200' : 'w-full'} h-full`}>
             <div ref={editorRef} className="h-full noteorg-editor" />
           </div>
         )}
-        {(!previewMode || splitMode) && previewMode && (
+        {/* Preview panel */}
+        {previewMode && (
           <div className={`${splitMode ? 'w-1/2' : 'w-full'} h-full overflow-y-auto`}>
-            <div ref={previewRef} className="p-6 prose max-w-none">
-              <MarkdownPreview content={content || ''} />
-            </div>
-          </div>
-        )}
-        {previewMode && !splitMode && (
-          <div className="w-full h-full overflow-y-auto">
             <div ref={previewRef} className="p-6 prose max-w-none">
               <MarkdownPreview content={content || ''} />
             </div>

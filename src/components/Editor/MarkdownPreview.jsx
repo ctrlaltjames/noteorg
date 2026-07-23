@@ -13,13 +13,8 @@ import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-go';
 import 'prismjs/components/prism-java';
 
-marked.setOptions({
-  breaks: true,
-  gfm: true,
-  highlight: function (code, lang) {
-    return highlightCode(code, lang);
-  },
-});
+// Register html alias for markup (marked passes "html" but prism registers it as "markup")
+Prism.languages.html = Prism.languages.markup;
 
 function escapeHtml(unsafe) {
   return unsafe
@@ -36,8 +31,9 @@ function highlightCode(code, language) {
   }
   try {
     const lang = language.toLowerCase();
-    if (Prism.languages[lang]) {
-      return Prism.highlight(code, Prism.languages[lang], lang);
+    const grammar = Prism.languages[lang];
+    if (grammar) {
+      return Prism.highlight(code, grammar, lang);
     }
     return escapeHtml(code);
   } catch {
@@ -45,9 +41,25 @@ function highlightCode(code, language) {
   }
 }
 
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
+window.__copyCode = function(buttonEl) {
+  const wrapper = buttonEl.closest('.code-block-wrapper');
+  const code = wrapper ? wrapper.querySelector('code').textContent : '';
+  navigator.clipboard.writeText(code).then(() => {
+    const originalText = buttonEl.textContent;
+    buttonEl.textContent = 'Copied!';
+    setTimeout(() => {
+      buttonEl.textContent = originalText;
+    }, 1500);
+  });
+};
+
 export default function MarkdownPreview({ content }) {
   const [html, setHtml] = useState('');
-  const contentRef = useRef(null);
 
   const renderContent = useCallback(() => {
     if (!content) {
@@ -55,7 +67,20 @@ export default function MarkdownPreview({ content }) {
       return;
     }
 
-    const out = marked.parse(content);
+    const renderer = new marked.Renderer();
+    renderer.code = function (codeObj, language) {
+      const code = typeof codeObj === 'string' ? codeObj : codeObj.text;
+      const lang = typeof language === 'string' ? language : codeObj.lang;
+      const displayLang = (lang || 'text').toUpperCase();
+      const highlighted = highlightCode(code, lang);
+      const uniqueId = 'cb-' + Math.random().toString(36).substr(2, 9);
+      return `<div class="code-block-wrapper" id="${uniqueId}">
+<div class="code-block-header"><span class="code-block-lang">${displayLang}</span><button class="code-block-copy" onclick="window.__copyCode(this)">Copy</button></div>
+<pre><code class="language-${lang || 'text'}">${highlighted}</code></pre>
+</div>\n`;
+    };
+
+    const out = marked.parse(content, { renderer });
     setHtml(out);
   }, [content]);
 
@@ -65,7 +90,6 @@ export default function MarkdownPreview({ content }) {
 
   return (
     <div
-      ref={contentRef}
       className="markdown-preview"
       dangerouslySetInnerHTML={{ __html: html }}
     />
