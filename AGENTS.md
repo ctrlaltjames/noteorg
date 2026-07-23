@@ -73,10 +73,29 @@ The user will type one of these prompts:
 
 | Prompt | What it does |
 |--------|-------------|
+| `"help me set up"` or `"run the setup checklist"` | Reads `plans/simplified-plan/setup-checklist.md`, guides user through each step interactively — asks for Supabase credentials, creates `.env`, verifies each step before proceeding |
 | `"continue"` | Implement next phase after latest checkpoint |
 | `"continue to phase N"` | Implement specific phase |
 | `"redo phase N"` | Rollback git and redo phase N |
 | `"skip phase N"` | Mark phase N as complete without implementing |
+
+## Setup Session Protocol
+
+When the user types `"help me set up"` or `"run the setup checklist"`:
+
+1. Read `plans/simplified-plan/setup-checklist.md`
+2. Walk through each step **one at a time**, waiting for user confirmation after each
+3. For credential steps (Step 2), ask the user for the value and write it to `.env`
+4. For dashboard steps (Steps 1, 3, 4), ask the user to perform the action in Supabase, then wait for confirmation
+5. For verification steps (Steps 5, 6, 7), run the commands and report results
+6. After all steps complete, confirm setup is done and offer to continue to the next phase
+
+Key automation rules:
+- Always create `.env` from user-provided values — never hardcode secrets
+- If `.env` already exists, read it first and only ask for missing values
+- Run `npm install` if `node_modules` doesn't exist
+- After setup completes, run `npm run dev` to verify the app starts
+- Report any errors and suggest fixes before moving to the next step
 
 ## Context Management
 
