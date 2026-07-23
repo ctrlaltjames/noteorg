@@ -197,7 +197,6 @@ function toggleQuote(view) {
 function toggleCode(view) {
   const range = view.state.selection.ranges[0];
   const text = view.state.sliceDoc(range.from, range.to);
-  console.log('[toggleCode] range.from=', range.from, 'range.to=', range.to, 'text=', JSON.stringify(text), 'hasNewline=', text.includes('\n'), 'hasCR=', text.includes('\r'));
 
   if (text.startsWith('`') && text.endsWith('`')) {
     view.dispatch({
@@ -333,7 +332,6 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
 
     setView(newView);
     viewRef.current = newView;
-    console.log('[MD] Created EditorView, stored in viewRef');
     lastSyncedContentRef.current = content || '';
     setTimeout(() => newView.focus(), 0);
 
@@ -410,25 +408,20 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
 
   const handleMdAction = useCallback((btn) => {
     const currentView = viewRef.current;
-    console.log('[MD] btn:', btn.title, 'viewRef:', currentView, 'view state:', currentView?.state?.doc?.length);
     if (!currentView) {
-      console.log('[MD] viewRef.current is NULL — editor not ready');
       return;
     }
     if (currentView.destroyed) {
-      console.log('[MD] view destroyed');
       return;
     }
     try {
       if (btn.command && mdCommands[btn.command]) {
-        console.log('[MD] calling command:', btn.command);
         mdCommands[btn.command](currentView);
       } else if (btn.insert !== null && btn.insert !== undefined) {
-        console.log('[MD] calling insertAtCursor:', btn.insert);
         insertAtCursor(currentView, btn.insert);
       }
     } catch (err) {
-      console.error('[MD] command threw:', err);
+      // ignore
     }
   }, []);
 
