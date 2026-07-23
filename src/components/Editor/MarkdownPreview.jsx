@@ -52,13 +52,9 @@ export default function MarkdownPreview({ content }) {
       return;
     }
 
-    const tokens = marked.lexer(content);
-    const html = marked.parser(tokens, {
-      highlight: function (code, lang) {
-        return highlightCode(code, lang);
-      },
-    });
-    setHtml(html);
+    const tokens = marked.lexer(content, { highlight: null });
+    const out = marked.parser(tokens, { highlight: null });
+    setHtml(out);
   }, [content]);
 
   useEffect(() => {
