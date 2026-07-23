@@ -245,7 +245,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     <div class="h-full flex flex-col">
       {/* View header */}
       <div class="flex items-center justify-between p-3 border-b border-dark-border shrink-0">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1">
           <button
             onClick={onClose}
             class="text-dark-secondary hover:text-dark-text transition-colors"
