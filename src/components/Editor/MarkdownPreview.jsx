@@ -16,6 +16,9 @@ import 'prismjs/components/prism-java';
 marked.setOptions({
   breaks: true,
   gfm: true,
+  highlight: function (code, lang) {
+    return highlightCode(code, lang);
+  },
 });
 
 function escapeHtml(unsafe) {
@@ -52,14 +55,7 @@ export default function MarkdownPreview({ content }) {
       return;
     }
 
-    const out = marked.parse(content, {
-      async: false,
-      breaks: true,
-      gfm: true,
-      highlight(code, lang) {
-        return highlightCode(code, lang);
-      },
-    });
+    const out = marked.parse(content);
     setHtml(out);
   }, [content]);
 
