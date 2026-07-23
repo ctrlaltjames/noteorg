@@ -1,24 +1,8 @@
-import { useState, useEffect } from 'preact/hooks';
 import { useApp } from '@context/AppContext';
 import ArtifactCard from './ArtifactCard';
 
 export default function ArtifactList({ onArtifactSelect, onEditArtifact, onDeleteArtifact }) {
-  const { artifacts, loading, searchQuery, activeTag, activeFolder, fetchArtifacts } = useApp();
-  const [localQuery, setLocalQuery] = useState(searchQuery);
-
-  useEffect(() => {
-    setLocalQuery(searchQuery);
-  }, [searchQuery]);
-
-  const handleSearch = () => {
-    fetchArtifacts(localQuery, activeTag, activeFolder);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
+  const { artifacts, loading, searchQuery, activeTag, activeFolder } = useApp();
 
   if (loading) {
     return (

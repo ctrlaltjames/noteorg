@@ -1,4 +1,4 @@
-import { useState, useRef } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import { useApp } from '@context/AppContext';
 import ArtifactList from './ArtifactList';
 
@@ -12,54 +12,26 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
     setActiveFolder,
     tags,
     folders,
-    fetchArtifacts,
-    applyFilters,
   } = useApp();
 
   const [showFilters, setShowFilters] = useState(false);
-  const searchTimeout = useRef(null);
 
   const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    if (searchTimeout.current) clearTimeout(searchTimeout.current);
-    searchTimeout.current = setTimeout(() => {
-      fetchArtifacts(value, activeTag, activeFolder);
-    }, 200);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      if (searchTimeout.current) clearTimeout(searchTimeout.current);
-      fetchArtifacts(searchQuery, activeTag, activeFolder);
-    }
+    setSearchQuery(e.target.value);
   };
 
   const handleTagClick = (tagName) => {
-    if (activeTag === tagName) {
-      setActiveTag(null);
-      fetchArtifacts(searchQuery, null, activeFolder);
-    } else {
-      setActiveTag(tagName);
-      fetchArtifacts(searchQuery, tagName, activeFolder);
-    }
+    setActiveTag(activeTag === tagName ? null : tagName);
   };
 
   const handleFolderClick = (folderId) => {
-    if (activeFolder === folderId) {
-      setActiveFolder(null);
-      fetchArtifacts(searchQuery, activeTag, null);
-    } else {
-      setActiveFolder(folderId);
-      fetchArtifacts(searchQuery, activeTag, folderId);
-    }
+    setActiveFolder(activeFolder === folderId ? null : folderId);
   };
 
   const clearFilters = () => {
     setSearchQuery('');
     setActiveTag(null);
     setActiveFolder(null);
-    fetchArtifacts('', null, null);
   };
 
   const hasActiveFilters = activeTag || activeFolder || searchQuery;
