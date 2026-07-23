@@ -244,21 +244,19 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   return (
     <div class="h-full flex flex-col">
       {/* View header */}
-      <div class="flex items-center justify-between p-3 border-b border-dark-border shrink-0">
-        <div class="flex items-center gap-1">
-          <button
-            onClick={onClose}
-            class="text-dark-secondary hover:text-dark-text transition-colors"
-            title="Back to list"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <span class={`text-xs px-2 py-0.5 rounded capitalize ${isNote ? 'bg-accent-dark/20 text-accent-dark' : 'bg-primary-dark/20 text-primary-dark'}`}>
-            {artifact.type}
-          </span>
-        </div>
+      <div class="flex items-center gap-2 p-3 border-b border-dark-border shrink-0">
+        <button
+          onClick={onClose}
+          class="text-dark-secondary hover:text-dark-text transition-colors p-1.5 rounded"
+          title="Back to list"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <span class={`text-xs px-2 py-0.5 rounded capitalize ${isNote ? 'bg-accent-dark/20 text-accent-dark' : 'bg-primary-dark/20 text-primary-dark'}`}>
+          {artifact.type}
+        </span>
       </div>
 
       {/* Content */}
