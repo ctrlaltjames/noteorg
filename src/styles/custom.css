@@ -143,43 +143,33 @@ body {
   margin: 1rem 0;
 }
 
-.markdown-preview .code-block-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #0f172a;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem 0.5rem 0 0;
-  margin-bottom: -1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.markdown-preview .code-block-lang {
-  font-size: 0.75rem;
-  font-weight: 600;
+.markdown-preview .code-block-label {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #334155;
   color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  user-select: none;
+  z-index: 2;
 }
 
-.markdown-preview .code-block-copy {
-  background-color: transparent;
-  border: 1px solid #334155;
-  color: #94a3b8;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s ease;
+.markdown-preview .code-block-wrapper:hover .code-block-label {
+  opacity: 1;
 }
 
-.markdown-preview .code-block-copy:hover {
-  background-color: #334155;
+.markdown-preview .code-block-label:hover {
+  background-color: #475569;
   color: #e2e8f0;
-  border-color: #475569;
 }
 
 .markdown-preview pre code {

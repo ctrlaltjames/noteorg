@@ -46,14 +46,18 @@ marked.setOptions({
   gfm: true,
 });
 
-window.__copyCode = function(buttonEl) {
-  const wrapper = buttonEl.closest('.code-block-wrapper');
+window.__copyCode = function(labelEl) {
+  const wrapper = labelEl.closest('.code-block-wrapper');
   const code = wrapper ? wrapper.querySelector('code').textContent : '';
   navigator.clipboard.writeText(code).then(() => {
-    const originalText = buttonEl.textContent;
-    buttonEl.textContent = 'Copied!';
+    const originalText = labelEl.textContent;
+    labelEl.textContent = 'Copied!';
+    labelEl.style.backgroundColor = '#16a34a';
+    labelEl.style.color = '#fff';
     setTimeout(() => {
-      buttonEl.textContent = originalText;
+      labelEl.textContent = originalText;
+      labelEl.style.backgroundColor = '';
+      labelEl.style.color = '';
     }, 1500);
   });
 };
@@ -73,10 +77,9 @@ export default function MarkdownPreview({ content }) {
       const lang = typeof language === 'string' ? language : codeObj.lang;
       const displayLang = (lang || 'text').toUpperCase();
       const highlighted = highlightCode(code, lang);
-      const uniqueId = 'cb-' + Math.random().toString(36).substr(2, 9);
-      return `<div class="code-block-wrapper" id="${uniqueId}">
-<div class="code-block-header"><span class="code-block-lang">${displayLang}</span><button class="code-block-copy" onclick="window.__copyCode(this)">Copy</button></div>
+      return `<div class="code-block-wrapper">
 <pre><code class="language-${lang || 'text'}">${highlighted}</code></pre>
+<div class="code-block-label" onclick="window.__copyCode(this)">${displayLang}</div>
 </div>\n`;
     };
 
