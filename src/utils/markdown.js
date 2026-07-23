@@ -1,4 +1,4 @@
-import { parse, serialize } from 'preact';
+
 
 const FRONTMATTER_REGEX = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
 

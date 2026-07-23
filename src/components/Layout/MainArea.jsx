@@ -5,7 +5,7 @@ import NoteEditor from '../Editor/NoteEditor';
 import ImageGallery from '../Gallery/ImageGallery';
 
 export default function MainArea() {
-  const { readFile, writeFile } = useFileSystem();
+  const { readFile, writeFile, deleteFile } = useFileSystem();
   const { selectedNote, handleSelectNote, sidebarTab, setSidebarTab, noteTags, handleUpdateNoteTags } = useAppState();
   const [content, setContent] = useState('');
   const [viewMode, setViewMode] = useState('note');
@@ -54,6 +54,18 @@ export default function MainArea() {
       // ignore
     }
   }, [writeFile, handleSelectNote]);
+
+  const handleDelete = useCallback(async () => {
+    if (!selectedNote) return;
+    if (!window.confirm(`Delete "${selectedNote.name}"?`)) return;
+    try {
+      await deleteFile(selectedNote.path);
+      setContent('');
+      handleSelectNote(null);
+    } catch (e) {
+      // ignore
+    }
+  }, [selectedNote, deleteFile, handleSelectNote]);
 
   return (
     <main className="flex-1 flex flex-col overflow-hidden bg-white">
@@ -110,6 +122,7 @@ export default function MainArea() {
             content={content}
             onChange={setContent}
             onSave={handleSave}
+            onDelete={handleDelete}
           />
         ) : (
           <ImageGallery

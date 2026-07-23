@@ -19,13 +19,35 @@ const theme = EditorView.theme({
   },
   '.cm-content': {
     padding: '16px',
+    color: '#111827',
   },
   '.cm-line': {
     minHeight: '1.6em',
+    color: '#111827',
+  },
+  '.cm-cursor': {
+    borderLeftColor: '#111827',
+  },
+  '.cm-dropCursor': {
+    color: '#111827',
+  },
+  '@media (prefers-color-scheme: dark)': {
+    '.cm-content': {
+      color: '#f3f4f6',
+    },
+    '.cm-line': {
+      color: '#f3f4f6',
+    },
+    '.cm-cursor': {
+      borderLeftColor: '#f3f4f6',
+    },
+    '.cm-dropCursor': {
+      color: '#f3f4f6',
+    },
   },
 });
 
-export default function NoteEditor({ notePath, content, onChange, onSave }) {
+export default function NoteEditor({ notePath, content, onChange, onSave, onDelete }) {
   const [view, setView] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [splitMode, setSplitMode] = useState(false);
@@ -203,6 +225,14 @@ export default function NoteEditor({ notePath, content, onChange, onSave }) {
         >
           Save
         </button>
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className="px-3 py-1 text-xs font-medium bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+          >
+            Delete
+          </button>
+        )}
       </div>
 
       {/* Editor area */}

@@ -10,7 +10,7 @@ import SettingsModal from '../Modals/SettingsModal';
 import ImageViewer from '../Modals/ImageViewer';
 
 export default function AppLayout() {
-  const { directoryHandle, openDirectory } = useFileSystem();
+  const { directoryHandle, lastFolderName, openDirectory } = useFileSystem();
   const {
     selectedNote,
     handleSelectNote,
@@ -21,7 +21,7 @@ export default function AppLayout() {
     sidebarCollapsed,
     setSidebarCollapsed,
   } = useAppState();
-  const [showFolderPicker, setShowFolderPicker] = useState(!directoryHandle);
+  const [showFolderPicker, setShowFolderPicker] = useState(false);
 
   useEffect(() => {
     const handleGlobalKeyDown = (e) => {

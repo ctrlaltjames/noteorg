@@ -3,7 +3,7 @@ import FolderTree from '../Sidebar/FolderTree';
 import TagPanel from '../Sidebar/TagPanel';
 
 export default function Sidebar({ activeTab, onTabChange, selectedPath, onSelect }) {
-  const { directoryHandle, openDirectory } = useFileSystem();
+  const { directoryHandle, lastFolderName, openDirectory } = useFileSystem();
 
   const handlePickFolder = () => {
     openDirectory().catch(() => {});
@@ -47,7 +47,15 @@ export default function Sidebar({ activeTab, onTabChange, selectedPath, onSelect
             <TagPanel />
           )
         ) : (
-          <div className="p-4">
+          <div className="p-4 space-y-3">
+            {lastFolderName && (
+              <button
+                onClick={handlePickFolder}
+                className="w-full text-xs text-gray-500 hover:text-gray-700 cursor-pointer"
+              >
+                Last session: <span className="font-medium text-gray-700">{lastFolderName}</span> →
+              </button>
+            )}
             <button
               onClick={handlePickFolder}
               className="w-full px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"

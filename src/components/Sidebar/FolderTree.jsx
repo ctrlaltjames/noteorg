@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'preact/hooks';
+import { useState, useCallback, useEffect } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
 import FolderNode from './FolderNode';
 
@@ -18,6 +18,10 @@ export default function FolderTree({ selectedPath, onSelect }) {
       setLoading(false);
     }
   }, [listDirectory]);
+
+  useEffect(() => {
+    loadRoot();
+  }, [loadRoot]);
 
   const handleSelect = useCallback(
     (item) => {

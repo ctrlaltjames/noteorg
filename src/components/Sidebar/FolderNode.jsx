@@ -1,6 +1,8 @@
-import { useState, useCallback } from 'preact/hooks';
+import { useState, useCallback, useEffect } from 'preact/hooks';
+import { useFileSystem } from '../../context/FileSystemContext';
 
 export default function FolderNode({ item, depth, onSelect, onContext, selectedPath }) {
+  const { listDirectory } = useFileSystem();
   const [expanded, setExpanded] = useState(false);
   const [children, setChildren] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,11 +26,24 @@ export default function FolderNode({ item, depth, onSelect, onContext, selectedP
   }, [item, onContext]);
 
   const handleExpand = useCallback(async () => {
-    if (expanded || loading) return;
+    if (expanded || loading || children.length > 0) return;
     setLoading(true);
     setExpanded(true);
-    setLoading(false);
-  }, [expanded, loading]);
+    try {
+      const result = await listDirectory(item.path);
+      setChildren(result);
+    } catch {
+      setChildren([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [expanded, loading, children.length, item.path, listDirectory]);
+
+  useEffect(() => {
+    if (isExpanded && item.kind === 'directory' && children.length === 0 && !loading) {
+      handleExpand();
+    }
+  }, [isExpanded, item.kind, item.path, children.length, loading, handleExpand]);
 
   const icon = item.kind === 'directory'
     ? (isExpanded ? '📂' : '📁')

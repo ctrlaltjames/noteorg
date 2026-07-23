@@ -9,10 +9,19 @@ const TOAST_TYPES = {
   info: { color: 'bg-blue-600', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
 };
 
+const LAST_FOLDER_KEY = 'lastFolderName';
+
 export function FileSystemProvider({ children }) {
   const [directoryHandle, setDirectoryHandle] = useState(null);
   const [handleCache, setHandleCache] = useState(new Map());
   const [toasts, setToasts] = useState([]);
+  const [lastFolderName, setLastFolderName] = useState(() => {
+    try {
+      return localStorage.getItem(LAST_FOLDER_KEY) || '';
+    } catch {
+      return '';
+    }
+  });
 
   const addToast = useCallback((message, type = 'info') => {
     const id = Date.now() + Math.random();
@@ -44,6 +53,10 @@ export function FileSystemProvider({ children }) {
       setDirectoryHandle(handle);
       setHandleCache(new Map([[handle.name, handle]]));
       window._folderName = handle.name;
+      setLastFolderName(handle.name);
+      try {
+        localStorage.setItem(LAST_FOLDER_KEY, handle.name);
+      } catch {}
       addToast(`Opened folder: ${handle.name}`, 'success');
       return handle;
     } catch (err) {
@@ -175,18 +188,38 @@ export function FileSystemProvider({ children }) {
     }
   }, [directoryHandle]);
 
+  const deleteFile = useCallback(async (path) => {
+    if (!directoryHandle) return false;
+    try {
+      const parts = path.split('/').filter(Boolean);
+      let current = directoryHandle;
+
+      for (let i = 0; i < parts.length - 1; i++) {
+        current = await current.getDirectoryHandle(parts[i]);
+      }
+
+      await current.removeEntry(parts[parts.length - 1]);
+      return true;
+    } catch (err) {
+      addToast(`Failed to delete "${path}": ${err.message}`, 'error');
+      return false;
+    }
+  }, [directoryHandle, addToast]);
+
   const getValue = useCallback(() => {
     return {
       directoryHandle,
       toasts,
+      lastFolderName,
       openDirectory,
       readFile,
       writeFile,
       createDirectory,
+      deleteFile,
       listDirectory,
       getFileHandle,
     };
-  }, [directoryHandle, toasts, openDirectory, readFile, writeFile, createDirectory, listDirectory, getFileHandle]);
+  }, [directoryHandle, toasts, lastFolderName, openDirectory, readFile, writeFile, createDirectory, deleteFile, listDirectory, getFileHandle]);
 
   return (
     <FileSystemContext.Provider value={getValue()}>
