@@ -58,7 +58,6 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
               type="text"
               value={searchQuery}
               onInput={handleSearchChange}
-              onKeyDown={handleKeyDown}
               placeholder="Search..."
               class="w-full pl-8 pr-3 py-1.5 text-sm"
             />
