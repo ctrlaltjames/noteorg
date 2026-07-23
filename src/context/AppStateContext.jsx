@@ -167,11 +167,19 @@ export function AppStateProvider({ children }) {
   );
 
   const handleSelectNote = useCallback(
-    (note) => {
+    async (note) => {
       setSelectedNote(note);
       setSearchOpen(false);
+      if (note?.name.endsWith('.md') && fileSystem) {
+        try {
+          const text = await fileSystem.readFile(note.path);
+          setNoteContents((prev) => ({ ...prev, [note.path]: text || '' }));
+        } catch {
+          setNoteContents((prev) => ({ ...prev, [note.path]: '' }));
+        }
+      }
     },
-    []
+    [fileSystem]
   );
 
   const handleTagClick = useCallback((tag) => {

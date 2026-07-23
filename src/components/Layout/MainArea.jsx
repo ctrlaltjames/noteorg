@@ -5,30 +5,25 @@ import NoteEditor from '../Editor/NoteEditor';
 import ImageGallery from '../Gallery/ImageGallery';
 
 export default function MainArea() {
-  const { readFile, writeFile, deleteFile } = useFileSystem();
-  const { selectedNote, handleSelectNote, sidebarTab, setSidebarTab, noteTags, handleUpdateNoteTags } = useAppState();
-  const [content, setContent] = useState('');
+  const { writeFile, deleteFile } = useFileSystem();
+  const { selectedNote, handleSelectNote, sidebarTab, setSidebarTab, noteTags, handleUpdateNoteTags, noteContents, setNoteContents } = useAppState();
   const [viewMode, setViewMode] = useState('note');
   const [saving, setSaving] = useState(false);
   const [newNoteName, setNewNoteName] = useState('');
   const [showNewNoteInput, setShowNewNoteInput] = useState(false);
+
+  const content = selectedNote?.path ? (noteContents[selectedNote.path] || '') : '';
+  const setContent = useCallback((newContent) => {
+    if (selectedNote?.path) {
+      setNoteContents((prev) => ({ ...prev, [selectedNote.path]: newContent }));
+    }
+  }, [selectedNote?.path]);
 
   useEffect(() => {
     if (selectedNote?.name.endsWith('.md')) {
       setViewMode('note');
     }
   }, [selectedNote]);
-
-  const handleSelectNoteItem = useCallback(async (item) => {
-    if (!item.name.endsWith('.md')) return;
-    handleSelectNote(item);
-    try {
-      const text = await readFile(item.path);
-      setContent(text || '');
-    } catch (e) {
-      setContent('');
-    }
-  }, [readFile, handleSelectNote]);
 
   const handleSave = useCallback(async () => {
     if (!selectedNote || !content) return;
@@ -78,12 +73,16 @@ export default function MainArea() {
     if (!window.confirm(`Delete "${selectedNote.name}"?`)) return;
     try {
       await deleteFile(selectedNote.path);
-      setContent('');
+      setNoteContents((prev) => {
+        const next = { ...prev };
+        delete next[selectedNote.path];
+        return next;
+      });
       handleSelectNote(null);
     } catch (e) {
       // ignore
     }
-  }, [selectedNote, deleteFile, handleSelectNote]);
+  }, [selectedNote, deleteFile, handleSelectNote, setNoteContents]);
 
   return (
     <main className="flex-1 flex flex-col overflow-hidden bg-white">
