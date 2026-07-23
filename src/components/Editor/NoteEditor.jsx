@@ -80,6 +80,22 @@ const editorTheme = EditorView.theme({
   '.cm-panel search': {
     color: '#111827',
   },
+  '.dark &': {
+    '.cm-content': { color: '#e5e7eb' },
+    '.cm-line': { color: '#e5e7eb' },
+    '.cm-cursor': { borderLeftColor: '#e5e7eb' },
+    '.cm-selectionBackground': { background: '#3b82f6' },
+    '.cm-selection': { background: '#3b82f6' },
+    '.cm-line .cm-selection': { background: '#3b82f6' },
+    '.cm-selectionMatch': { background: '#1e3a5f !important', color: '#93c5fd' },
+    '.cm-matchingBracket': { background: '#1e3a5f' },
+    '.cm-lineNumber': { color: '#6b7280', fontSize: '12px' },
+    '.cm-gutters': { background: '#111827', borderRight: '1px solid #374151', color: '#9ca3af' },
+    '.cm-tooltip-autocomplete': { background: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' },
+    '.cm-tooltip-autocomplete > div[aria-selected]': { background: '#1e3a5f' },
+    '.cm-panel': { background: '#1f2937', color: '#e5e7eb' },
+    '.cm-panel search': { color: '#e5e7eb' },
+  },
 });
 
 const MD_BUTTONS = [
@@ -428,13 +444,13 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
 
   if (!notePath) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center bg-white dark:bg-gray-800">
         <div className="text-center">
           <div className="text-5xl mb-4">📝</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
             Select a note to edit
           </h2>
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             Choose a markdown file from the sidebar or create a new one.
           </p>
         </div>
@@ -445,7 +461,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   return (
     <div className="h-full flex flex-col">
       {/* Markdown toolbar */}
-      <div className="h-9 bg-gray-50 border-b border-gray-200 flex items-center px-2 gap-0.5 shrink-0">
+      <div className="h-9 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-2 gap-0.5 shrink-0">
         {MD_BUTTONS.map((btn) => (
           <button
             key={btn.title}
@@ -455,19 +471,19 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
               handleMdAction(btn);
             }}
             title={btn.title}
-            className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded transition-colors"
+            className="px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 rounded transition-colors"
           >
             {btn.label}
           </button>
         ))}
 
-        <div className="w-px h-5 bg-gray-300 mx-1" />
+        <div className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1" />
 
         <button
           onClick={() => setPreviewMode(!previewMode)}
           title={`Preview (Ctrl+P)`}
           className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
-            previewMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-200'
+            previewMode ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
           }`}
         >
           Preview
@@ -482,7 +498,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
           }}
           title={`Split (Ctrl+B)`}
           className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
-            splitMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-200'
+            splitMode ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
           }`}
         >
           Split
@@ -490,17 +506,17 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
       </div>
 
       {/* Tag bar */}
-      <div className="h-8 bg-gray-50 border-b border-gray-200 flex items-center px-3 gap-1.5 shrink-0">
-        <span className="text-xs text-gray-400">{'\u{1F3F7}'}</span>
+      <div className="h-8 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-3 gap-1.5 shrink-0">
+        <span className="text-xs text-gray-400 dark:text-gray-500">{'\u{1F3F7}'}</span>
         {noteTags.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
           >
             <span>{tag}</span>
             <button
               onClick={() => handleRemoveTag(tag)}
-              className="text-blue-400 hover:text-blue-700 transition-colors"
+              className="text-blue-400 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-200 transition-colors"
             >
               {'\u00D7'}
             </button>
@@ -512,7 +528,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
           onChange={(e) => setTagInput(e.target.value)}
           onKeyDown={handleTagKeyDown}
           placeholder="+ Add tag"
-          className="w-20 px-1.5 py-0.5 text-xs border border-gray-200 rounded-full bg-white text-gray-700 placeholder-gray-400 outline-none focus:border-blue-400"
+          className="w-20 px-1.5 py-0.5 text-xs border border-gray-200 dark:border-gray-600 rounded-full bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-blue-400"
         />
         <div className="flex-1" />
         <button

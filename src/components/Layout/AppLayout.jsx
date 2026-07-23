@@ -73,7 +73,7 @@ export default function AppLayout() {
         {/* Sidebar overlay for mobile */}
         {sidebarCollapsed || (
           <div
-            className="lg:hidden fixed inset-0 bg-black/20 z-20"
+            className="lg:hidden fixed inset-0 bg-black/20 dark:bg-black/60 z-20"
             onClick={() => setSidebarCollapsed(true)}
           />
         )}

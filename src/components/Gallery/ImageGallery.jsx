@@ -119,8 +119,8 @@ export default function ImageGallery({ images, selectedPath, onSelect }) {
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
     >
-      <div className="h-10 bg-gray-50 border-b border-gray-200 flex items-center px-3 gap-2 shrink-0">
-        <span className="text-xs font-medium text-gray-500">Images</span>
+      <div className="h-10 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-3 gap-2 shrink-0">
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Images</span>
         <div className="flex-1" />
         <button
           onClick={handleBrowse}
@@ -138,18 +138,18 @@ export default function ImageGallery({ images, selectedPath, onSelect }) {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800">
         {dragOver && (
-          <div className="border-2 border-dashed border-blue-400 rounded-lg p-8 text-center mb-4">
-            <p className="text-blue-600 font-medium">Drop images here</p>
+          <div className="border-2 border-dashed border-blue-400 dark:border-blue-500 rounded-lg p-8 text-center mb-4">
+            <p className="text-blue-600 dark:text-blue-400 font-medium">Drop images here</p>
           </div>
         )}
 
         {galleryImages.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-3">🖼️</div>
-            <p className="text-gray-500 text-sm mb-2">No images in this folder</p>
-            <p className="text-gray-400 text-xs">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-2">No images in this folder</p>
+            <p className="text-gray-400 dark:text-gray-500 text-xs">
               Paste images with Ctrl+V or click Browse to add images
             </p>
           </div>

@@ -46,11 +46,11 @@ export default function ImageCard({ image, onSelect }) {
 
   return (
     <div
-      className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors cursor-pointer"
+      className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer"
       onClick={handleClick}
     >
       {loading ? (
-        <div className="aspect-square bg-gray-100 flex items-center justify-center">
+        <div className="aspect-square bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
           <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (

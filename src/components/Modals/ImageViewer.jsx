@@ -21,14 +21,14 @@ export default function ImageViewer() {
   if (!show) return null;
 
   return (
-    <div className="modal-overlay" onClick={handleClose}>
+    <div className="modal-overlay dark:bg-black/70" onClick={handleClose}>
       <div className="relative max-w-screen-w max-h-[90vh] p-4" onClick={(e) => e.stopPropagation()}>
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute -top-3 -right-3 z-10 p-1.5 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+          className="absolute -top-3 -right-3 z-10 p-1.5 bg-white dark:bg-gray-700 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
         >
-          <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -42,7 +42,7 @@ export default function ImageViewer() {
 
         {/* Caption */}
         {alt && (
-          <p className="text-center text-sm text-gray-500 mt-3">{alt}</p>
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">{alt}</p>
         )}
       </div>
     </div>

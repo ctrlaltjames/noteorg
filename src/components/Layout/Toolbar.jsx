@@ -30,11 +30,11 @@ export default function Toolbar() {
   };
 
   return (
-    <header className="h-12 bg-white border-b border-gray-200 flex items-center px-3 gap-2 shrink-0">
+    <header className="h-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-3 gap-2 shrink-0">
       {/* Sidebar toggle */}
       <button
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-        className="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors lg:hidden"
+        className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors lg:hidden"
         title="Toggle sidebar"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,10 +43,10 @@ export default function Toolbar() {
       </button>
 
       {/* Logo */}
-      <h1 className="text-lg font-semibold text-gray-900 shrink-0">NoteOrg</h1>
+      <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 shrink-0">NoteOrg</h1>
 
       {/* Folder name */}
-      <span className="text-sm text-gray-500 truncate max-w-xs hidden sm:inline-flex">
+      <span className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs hidden sm:inline-flex">
         {'\u{1F4C1}'} {window._folderName || 'No folder'}
       </span>
 
@@ -63,7 +63,7 @@ export default function Toolbar() {
       )}
 
       {lastSaveTime && saveState === 'saved' && (
-        <span className="text-xs text-gray-400 hidden md:inline">
+        <span className="text-xs text-gray-400 dark:text-gray-500 hidden md:inline">
           Saved {formatSaveTime(lastSaveTime)}
         </span>
       )}
@@ -84,7 +84,7 @@ export default function Toolbar() {
       {/* Settings */}
       <button
         onClick={() => setShowSettings(!showSettings)}
-        className={`p-1.5 rounded-lg transition-colors ${showSettings ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
+        className={`p-1.5 rounded-lg transition-colors ${showSettings ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
         title="Settings"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

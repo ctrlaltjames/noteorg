@@ -41,13 +41,13 @@ export default function SettingsModal() {
   if (!showSettings) return null;
 
   return (
-    <div className="modal-overlay" onClick={() => setShowSettings(false)}>
-      <div className="modal-content w-full max-w-lg mx-4" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-5 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
+    <div className="modal-overlay dark:bg-black/70" onClick={() => setShowSettings(false)}>
+      <div className="modal-content w-full max-w-lg mx-4 bg-white dark:bg-gray-800" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Settings</h2>
           <button
             onClick={() => setShowSettings(false)}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -58,11 +58,11 @@ export default function SettingsModal() {
         <div className="p-5 space-y-5 max-h-96 overflow-y-auto">
           {/* Theme */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Theme</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Theme</label>
             <select
               value={localSettings.theme}
               onChange={(e) => handleChange('theme', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-700"
             >
               <option value="light" className="text-gray-900">Light</option>
               <option value="dark" className="text-gray-900">Dark</option>
@@ -71,7 +71,7 @@ export default function SettingsModal() {
 
           {/* Font Size */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Font Size: {localSettings.fontSize}px
             </label>
             <input
@@ -86,7 +86,7 @@ export default function SettingsModal() {
 
           {/* Auto-save Interval */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Auto-save Interval: {localSettings.autoSaveInterval}ms
             </label>
             <input
@@ -102,11 +102,11 @@ export default function SettingsModal() {
 
           {/* Tab Size */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Tab Size: {localSettings.tabSize}</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Tab Size: {localSettings.tabSize}</label>
             <select
               value={localSettings.tabSize}
               onChange={(e) => handleChange('tabSize', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-700"
             >
               <option value={2} className="text-gray-900">2 spaces</option>
               <option value={4} className="text-gray-900">4 spaces</option>
@@ -116,37 +116,37 @@ export default function SettingsModal() {
           {/* Toggles */}
           <div className="space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-sm font-medium text-gray-700">Word Wrap</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Word Wrap</span>
               <input
                 type="checkbox"
                 checked={localSettings.wordWrap}
                 onChange={(e) => handleChange('wordWrap', e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 bg-white dark:bg-gray-700"
               />
             </label>
             <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-sm font-medium text-gray-700">Show Line Numbers</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Show Line Numbers</span>
               <input
                 type="checkbox"
                 checked={localSettings.showLineNumbers}
                 onChange={(e) => handleChange('showLineNumbers', e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 bg-white dark:bg-gray-700"
               />
             </label>
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-5 border-t border-gray-200">
+        <div className="flex items-center justify-between p-5 border-t border-gray-200 dark:border-gray-700">
           <div className="flex gap-2">
             <button
               onClick={handleReset}
-              className="px-3 py-1.5 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               Reset
             </button>
             <button
               onClick={handleExport}
-              className="px-3 py-1.5 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               Export
             </button>

@@ -39,7 +39,7 @@ export default function FolderTree({ selectedPath, onSelect, onRename, onContext
   if (loading) {
     return (
       <div className="p-2">
-        <div className="text-sm text-gray-400 text-center py-4">Loading...</div>
+        <div className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">Loading...</div>
       </div>
     );
   }
@@ -47,7 +47,7 @@ export default function FolderTree({ selectedPath, onSelect, onRename, onContext
   if (items.length === 0) {
     return (
       <div className="p-2">
-        <div className="text-sm text-gray-400 text-center py-4">
+        <div className="text-sm text-gray-400 dark:text-gray-500 text-center py-4">
           No items found
         </div>
       </div>

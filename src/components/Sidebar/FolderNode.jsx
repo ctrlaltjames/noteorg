@@ -94,8 +94,8 @@ export default function FolderNode({ item, depth, onSelect, onContext, onRename,
       <div
         className={`flex items-center gap-1.5 px-2 py-1 rounded-md cursor-pointer text-sm transition-colors ${
           isSelected
-            ? 'bg-blue-100 text-blue-900'
-            : 'hover:bg-gray-100 text-gray-700'
+            ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-900 dark:text-blue-200'
+            : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
         }`}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
         onClick={handleClick}
@@ -107,9 +107,9 @@ export default function FolderNode({ item, depth, onSelect, onContext, onRename,
       {item.kind === 'directory' && isExpanded && (
         <div>
           {loading ? (
-            <div className="text-xs text-gray-400 px-4 py-1">Loading...</div>
+            <div className="text-xs text-gray-400 dark:text-gray-500 px-4 py-1">Loading...</div>
           ) : children.length === 0 ? (
-            <div className="text-xs text-gray-400 px-4 py-1">Empty</div>
+            <div className="text-xs text-gray-400 dark:text-gray-500 px-4 py-1">Empty</div>
           ) : (
             children.map((child) => (
               <FolderNode

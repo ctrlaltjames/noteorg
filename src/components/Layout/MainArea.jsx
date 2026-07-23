@@ -85,9 +85,9 @@ export default function MainArea() {
   }, [selectedNote, deleteFile, handleSelectNote, setNoteContents]);
 
   return (
-    <main className="flex-1 flex flex-col overflow-hidden bg-white">
+    <main className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-800">
       {/* Toolbar */}
-      <div className="h-10 bg-white border-b border-gray-200 flex items-center px-3 gap-2 shrink-0">
+      <div className="h-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-3 gap-2 shrink-0">
         {showNewNoteInput ? (
           <>
             <input
@@ -99,7 +99,7 @@ export default function MainArea() {
                 if (e.key === 'Escape') handleCancelCreateNote();
               }}
               placeholder="note-name.md"
-              className="px-2 py-1 text-xs border border-blue-400 rounded bg-white text-gray-700 placeholder-gray-400 outline-none focus:ring-1 focus:ring-blue-500 w-36"
+              className="px-2 py-1 text-xs border border-blue-400 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-1 focus:ring-blue-500 w-36"
               autoFocus
             />
             <button
@@ -110,7 +110,7 @@ export default function MainArea() {
             </button>
             <button
               onClick={handleCancelCreateNote}
-              className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded transition-colors"
+              className="px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
             >
               Cancel
             </button>
@@ -126,13 +126,13 @@ export default function MainArea() {
 
         {selectedNote && (
           <>
-            <div className="w-px h-5 bg-gray-200" />
+            <div className="w-px h-5 bg-gray-200 dark:bg-gray-700" />
             <button
               onClick={() => setViewMode('note')}
               className={`px-3 py-1 text-xs rounded transition-colors ${
                 viewMode === 'note'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               Editor
@@ -141,8 +141,8 @@ export default function MainArea() {
               onClick={() => setViewMode('gallery')}
               className={`px-3 py-1 text-xs rounded transition-colors ${
                 viewMode === 'gallery'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               Gallery
@@ -153,8 +153,8 @@ export default function MainArea() {
         <div className="flex-1" />
 
         {saving && (
-          <span className="text-xs text-gray-400 flex items-center gap-1">
-            <span className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin inline-block" />
+          <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            <span className="w-3 h-3 border border-gray-400 dark:border-gray-500 border-t-transparent dark:border-t-gray-300 rounded-full animate-spin inline-block" />
             Saving...
           </span>
         )}

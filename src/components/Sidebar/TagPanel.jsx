@@ -15,12 +15,12 @@ export default function TagPanel() {
   return (
     <div className="px-3 py-2">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           Tags
         </h3>
         <button
           onClick={() => handleOpenTagEditor('create')}
-          className="text-gray-400 hover:text-gray-600 transition-colors p-0.5"
+          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-0.5"
           title="Add tag"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -30,7 +30,7 @@ export default function TagPanel() {
       </div>
 
       {displayTags.length === 0 ? (
-        <div className="text-xs text-gray-400 text-center py-4">
+        <div className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">
           No tags yet
         </div>
       ) : (

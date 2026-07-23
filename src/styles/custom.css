@@ -327,9 +327,7 @@ body {
 }
 
 /* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #111827;
-    color: #f9fafb;
-  }
+.dark body {
+  background-color: #111827 !important;
+  color: #f9fafb !important;
 }

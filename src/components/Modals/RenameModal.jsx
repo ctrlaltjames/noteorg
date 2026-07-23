@@ -44,17 +44,17 @@ export default function RenameModal() {
   const filePath = renameModal.currentName.endsWith('.md') ? '📝 Markdown Note' : '📄 File';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" onClick={handleClose}>
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50" onClick={handleClose}>
       <div
-        className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">{filePath}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{filePath}</h3>
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -63,7 +63,7 @@ export default function RenameModal() {
           </div>
 
           <div className="mb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               File Name
             </label>
             <input
@@ -73,19 +73,19 @@ export default function RenameModal() {
               onChange={(e) => setLocalName(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="File name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700"
             />
           </div>
-          <p className="text-xs text-gray-400 mb-4">
-            Extension <code className="bg-gray-100 px-1 rounded">{fileExt || 'auto'}</code> will be preserved
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
+            Extension <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{fileExt || 'auto'}</code> will be preserved
           </p>
         </div>
 
-        <div className="flex gap-3 px-5 py-3 bg-gray-50 border-t border-gray-200">
+        <div className="flex gap-3 px-5 py-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
           <div className="flex-1" />
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
             Cancel
           </button>

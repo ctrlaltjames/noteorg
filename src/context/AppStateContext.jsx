@@ -45,6 +45,15 @@ export function AppStateProvider({ children }) {
   const [saveState, setSaveState] = useState('saved');
   const [saveError, setSaveError] = useState(null);
   const [lastSaveTime, setLastSaveTime] = useState(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (settings.theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [settings.theme]);
   const [renameModal, setRenameModal] = useState({ show: false, path: '', currentName: '' });
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, path: '', name: '' });
   const searchTimeoutRef = useRef(null);
