@@ -114,27 +114,31 @@ function insertAtCursor(view, prefix, suffix = '') {
 }
 
 function wrapLine(view, prefix, suffix) {
-  const line = view.state.selection.ranges[0];
-  const from = line.from;
-  const to = line.to;
-  const lineObj = view.state.doc.lineAt(from);
-  const lineStart = lineObj.from;
-  const lineEnd = lineObj.to;
-  const lineText = view.state.sliceDoc(lineStart, lineEnd);
-  const trimmed = lineText.trim();
-  const leadingSpaces = lineText.match(/^(\s*)/)[1];
+  const range = view.state.selection.ranges[0];
+  const selFrom = range.from;
+  const selTo = range.to;
 
-  if (trimmed === '') {
-    view.dispatch({
-      changes: { from: lineStart, to: lineEnd, insert: prefix + suffix },
-      selection: { anchor: lineStart + prefix.length },
-    });
-  } else {
-    const newLine = prefix + lineText + suffix;
-    view.dispatch({
-      changes: { from: lineStart, to: lineEnd, insert: newLine },
-    });
+  const startLine = view.state.doc.lineAt(selFrom);
+  const endLine = view.state.doc.lineAt(selTo);
+
+  const changes = [];
+  for (let i = startLine.number; i <= endLine.number; i++) {
+    const line = view.state.doc.lineAt(i);
+    const lineText = view.state.sliceDoc(line.from, line.to);
+    const trimmed = lineText.trim();
+    const leadingSpaces = lineText.match(/^(\s*)/)[1];
+
+    if (trimmed === '') {
+      changes.push({ from: line.from, to: line.to, insert: prefix + suffix });
+    } else {
+      const newLine = leadingSpaces + prefix + trimmed + suffix;
+      changes.push({ from: line.from, to: line.to, insert: newLine });
+    }
   }
+
+  view.dispatch({
+    changes,
+  });
   view.focus();
 }
 
@@ -193,6 +197,7 @@ function toggleQuote(view) {
 function toggleCode(view) {
   const range = view.state.selection.ranges[0];
   const text = view.state.sliceDoc(range.from, range.to);
+  console.log('[toggleCode] range.from=', range.from, 'range.to=', range.to, 'text=', JSON.stringify(text), 'hasNewline=', text.includes('\n'), 'hasCR=', text.includes('\r'));
 
   if (text.startsWith('`') && text.endsWith('`')) {
     view.dispatch({
@@ -207,7 +212,22 @@ function toggleCode(view) {
 }
 
 function toggleCodeBlock(view) {
-  wrapLine(view, '```\n', '\n```');
+  const range = view.state.selection.ranges[0];
+  const selFrom = range.from;
+  const selTo = range.to;
+  const text = view.state.sliceDoc(selFrom, selTo);
+  const trimmed = text.trim();
+
+  if (trimmed === '') {
+    view.dispatch({
+      changes: { from: selFrom, to: selTo, insert: '```\n```' },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: selFrom, to: selTo, insert: '```\n' + trimmed + '\n```' },
+    });
+  }
+  view.focus();
 }
 
 function toggleBullet(view) {
@@ -442,9 +462,9 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
             key={btn.title}
             onPointerDown={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               handleMdAction(btn);
             }}
-            onClick={() => {}}
             title={btn.title}
             className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded transition-colors"
           >
