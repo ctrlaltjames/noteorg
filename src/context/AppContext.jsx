@@ -66,6 +66,16 @@ export function AppProvider({ children, user }) {
         });
       }
 
+      // Filter by search query
+      if (query) {
+        const q = query.toLowerCase();
+        artifactList = artifactList.filter((a) =>
+          (a.title || '').toLowerCase().includes(q) ||
+          (a.content || '').toLowerCase().includes(q) ||
+          a.tagNames.some((t) => t.toLowerCase().includes(q))
+        );
+      }
+
       // Filter by tag if specified
       if (tag) {
         artifactList = artifactList.filter((a) => a.tagNames.includes(tag));
