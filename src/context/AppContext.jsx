@@ -5,6 +5,7 @@ import { supabase } from '@lib/supabase';
 const AppContext = createContext();
 
 export function AppProvider({ children, user }) {
+  const [rawArtifacts, setRawArtifacts] = useState([]);
   const [artifacts, setArtifacts] = useState([]);
   const [tags, setTags] = useState([]);
   const [folders, setFolders] = useState([]);
@@ -20,6 +21,32 @@ export function AppProvider({ children, user }) {
       loadData();
     }
   }, [user]);
+
+  // Filter raw artifacts by search query in real-time
+  useEffect(() => {
+    if (!searchQuery) {
+      setArtifacts(rawArtifacts);
+      return;
+    }
+    const q = searchQuery.toLowerCase();
+    const filtered = rawArtifacts
+      .map((a) => {
+        const title = (a.title || '').toLowerCase();
+        const content = (a.content || '').toLowerCase();
+        const titleMatch = title.includes(q);
+        const contentMatch = content.includes(q);
+        const tagMatch = a.tagNames.some((t) => t.toLowerCase().includes(q));
+        let score = 0;
+        if (titleMatch) score += 3;
+        if (contentMatch) score += 1;
+        if (tagMatch) score += 2;
+        return { ...a, _score: score };
+      })
+      .filter((a) => a._score > 0)
+      .sort((a, b) => b._score - a._score)
+      .map(({ _score, ...rest }) => rest);
+    setArtifacts(filtered);
+  }, [rawArtifacts, searchQuery]);
 
   // Fetch all artifacts with optional filters
   const fetchArtifacts = useCallback(async (query, tag, folder) => {
@@ -66,14 +93,25 @@ export function AppProvider({ children, user }) {
         });
       }
 
-      // Filter by search query
+      // Filter and rank by search query
       if (query) {
         const q = query.toLowerCase();
-        artifactList = artifactList.filter((a) =>
-          (a.title || '').toLowerCase().includes(q) ||
-          (a.content || '').toLowerCase().includes(q) ||
-          a.tagNames.some((t) => t.toLowerCase().includes(q))
-        );
+        artifactList = artifactList
+          .map((a) => {
+            const title = (a.title || '').toLowerCase();
+            const content = (a.content || '').toLowerCase();
+            const titleMatch = title.includes(q);
+            const contentMatch = content.includes(q);
+            const tagMatch = a.tagNames.some((t) => t.toLowerCase().includes(q));
+            let score = 0;
+            if (titleMatch) score += 3;
+            if (contentMatch) score += 1;
+            if (tagMatch) score += 2;
+            return { ...a, _score: score };
+          })
+          .filter((a) => a._score > 0)
+          .sort((a, b) => b._score - a._score);
+        artifactList = artifactList.map(({ _score, ...rest }) => rest);
       }
 
       // Filter by tag if specified
@@ -81,7 +119,7 @@ export function AppProvider({ children, user }) {
         artifactList = artifactList.filter((a) => a.tagNames.includes(tag));
       }
 
-      setArtifacts(artifactList);
+      setRawArtifacts(artifactList);
     } catch (err) {
       console.error('Failed to fetch artifacts:', err);
     } finally {
@@ -131,7 +169,7 @@ export function AppProvider({ children, user }) {
       await supabase.from('artifact_tags').insert(tagRecords);
     }
 
-    setArtifacts((prev) => [data, ...prev]);
+    setRawArtifacts((prev) => [data, ...prev]);
     return data;
   }, [user]);
 
@@ -145,7 +183,7 @@ export function AppProvider({ children, user }) {
       .single();
     if (error) throw error;
 
-    setArtifacts((prev) => prev.map((a) => (a.id === id ? { ...a, ...data } : a)));
+    setRawArtifacts((prev) => prev.map((a) => (a.id === id ? { ...a, ...data } : a)));
     if (selectedArtifact?.id === id) {
       setSelectedArtifact({ ...selectedArtifact, ...data });
     }
@@ -157,7 +195,7 @@ export function AppProvider({ children, user }) {
     const { error } = await supabase.from('artifacts').delete().eq('id', id);
     if (error) throw error;
 
-    setArtifacts((prev) => prev.filter((a) => a.id !== id));
+    setRawArtifacts((prev) => prev.filter((a) => a.id !== id));
     if (selectedArtifact?.id === id) {
       setSelectedArtifact(null);
     }

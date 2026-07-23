@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'preact/hooks';
+import { useState, useRef } from 'preact/hooks';
 import { useApp } from '@context/AppContext';
 import ArtifactList from './ArtifactList';
 
@@ -19,26 +19,19 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
   const [showFilters, setShowFilters] = useState(false);
   const searchTimeout = useRef(null);
 
-  // Live search with debounce
-  useEffect(() => {
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
-      fetchArtifacts(searchQuery, activeTag, activeFolder);
-    }, 300);
-    return () => clearTimeout(searchTimeout.current);
-  }, [searchQuery, activeTag, activeFolder]);
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleSearchSubmit = () => {
-    fetchArtifacts(searchQuery, activeTag, activeFolder);
+      fetchArtifacts(value, activeTag, activeFolder);
+    }, 200);
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      handleSearchSubmit();
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+      fetchArtifacts(searchQuery, activeTag, activeFolder);
     }
   };
 
@@ -92,7 +85,7 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
             <input
               type="text"
               value={searchQuery}
-              onChange={handleSearchChange}
+              onInput={handleSearchChange}
               onKeyDown={handleKeyDown}
               placeholder="Search..."
               class="w-full pl-8 pr-3 py-1.5 text-sm"
