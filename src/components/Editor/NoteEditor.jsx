@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
-import { syntaxHighlighting, bracketMatching } from '@codemirror/language';
+import { bracketMatching } from '@codemirror/language';
 import { highlightSpecialChars, drawSelection, highlightActiveLine } from '@codemirror/view';
 import { parseFrontmatter, buildFrontmatter } from '../../utils/markdown';
 import { getNoteTags, setNoteTags } from '../../utils/tags';
@@ -28,9 +28,6 @@ const editorTheme = EditorView.theme({
   },
   '.cm-cursor': {
     borderLeftColor: '#111827',
-  },
-  '.cm-selectionBackground': {
-    background: '#bfdbfe',
   },
   '.cm-activeLine': {
     background: '#f9fafb',
@@ -262,12 +259,29 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   const [tagInput, setTagInput] = useState('');
   const editorRef = useRef(null);
   const previewRef = useRef(null);
+  const viewRef = useRef(null);
 
   useEffect(() => {
     if (!notePath) return;
     const tags = getNoteTags(content || '');
     setNoteTagsState(tags);
   }, [notePath, content]);
+
+  useEffect(() => {
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      .noteorg-editor .cm-editor .cm-selectionBackground {
+        background-color: #60a5fa !important;
+      }
+      .noteorg-editor .cm-editor .cm-line .cm-selection {
+        background-color: #60a5fa !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -277,7 +291,6 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
       highlightSpecialChars(),
       drawSelection(),
       bracketMatching(),
-      syntaxHighlighting(),
       highlightActiveLine(),
       EditorView.lineWrapping,
       EditorView.updateListener.of((update) => {
@@ -308,10 +321,13 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
     });
 
     setView(newView);
+    viewRef.current = newView;
+    setTimeout(() => newView.focus(), 0);
 
     return () => {
       newView.destroy();
       setView(null);
+      viewRef.current = null;
     };
   }, [notePath]);
 
@@ -370,13 +386,14 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   }, [handleAddTag]);
 
   const handleMdAction = useCallback((btn) => {
-    if (!view) return;
+    const currentView = viewRef.current;
+    if (!currentView) return;
     if (btn.command && mdCommands[btn.command]) {
-      mdCommands[btn.command](view);
+      mdCommands[btn.command](currentView);
     } else if (btn.insert) {
-      insertAtCursor(view, btn.insert);
+      insertAtCursor(currentView, btn.insert);
     }
-  }, [view]);
+  }, []);
 
   if (!notePath) {
     return (
@@ -477,7 +494,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
       <div className="flex-1 overflow-hidden flex">
         {(!previewMode || splitMode) && (
           <div className={`${splitMode ? 'w-1/2 border-r border-gray-200' : 'w-full'} h-full`}>
-            <div ref={editorRef} className="h-full" />
+            <div ref={editorRef} className="h-full noteorg-editor" />
           </div>
         )}
         {(!previewMode || splitMode) && previewMode && (
