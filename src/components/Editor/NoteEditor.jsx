@@ -385,10 +385,14 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   const handleMdAction = useCallback((btn) => {
     const currentView = viewRef.current;
     if (!currentView) return;
-    if (btn.command && mdCommands[btn.command]) {
-      mdCommands[btn.command](currentView);
-    } else if (btn.insert) {
-      insertAtCursor(currentView, btn.insert);
+    try {
+      if (btn.command && mdCommands[btn.command]) {
+        mdCommands[btn.command](currentView);
+      } else if (btn.insert !== null && btn.insert !== undefined) {
+        insertAtCursor(currentView, btn.insert);
+      }
+    } catch (err) {
+      console.error('Markdown action failed:', err);
     }
   }, []);
 
@@ -415,7 +419,11 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
         {MD_BUTTONS.map((btn) => (
           <button
             key={btn.title}
-            onClick={() => handleMdAction(btn)}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              handleMdAction(btn);
+            }}
+            onClick={() => {}}
             title={btn.title}
             className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded transition-colors"
           >
