@@ -77,7 +77,7 @@ export default function AppLayout() {
             onSave={handleSave}
           />
         ) : (
-          <div class="h-full flex items-center justify-center text-dark-secondary">
+          <div class="h-full flex items-center justify-center theme-text-secondary">
             <div class="text-center">
               <svg
                 width="64"
@@ -86,13 +86,13 @@ export default function AppLayout() {
                 fill="none"
                 stroke="currentColor"
                 stroke-width="1"
-                class="mx-auto mb-4 text-dark-border"
+                class="mx-auto mb-4 theme-border"
               >
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
               </svg>
               <p class="text-sm font-medium mb-1">Select an artifact</p>
-              <p class="text-xs text-dark-secondary">Choose a note or image from the sidebar</p>
+              <p class="text-xs theme-text-secondary">Choose a note or image from the sidebar</p>
             </div>
           </div>
         )}

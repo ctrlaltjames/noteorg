@@ -49,7 +49,7 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
               fill="none"
               stroke="currentColor"
               stroke-width="2"
-              class="absolute left-2.5 top-1/2 -translate-y-1/2 text-dark-secondary"
+              class="absolute left-2.5 top-1/2 -translate-y-1/2 theme-text-secondary"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
@@ -64,7 +64,7 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
           </div>
           <button
             onClick={onOpenQuickAdd}
-            class="bg-primary-dark hover:bg-primary-dark/80 text-white px-3 py-1.5 rounded text-sm transition-colors shrink-0"
+            class="theme-bg-primary hover:opacity-90 text-white px-3 py-1.5 rounded text-sm transition-colors shrink-0"
             title="Quick Add"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -77,8 +77,8 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
         {/* Filter toggle */}
         <div
           onClick={() => setShowFilters(!showFilters)}
-          class={`mt-2 flex items-center gap-1.5 text-xs text-dark-secondary hover:text-dark-text transition-colors cursor-pointer w-full ${
-            hasActiveFilters ? 'text-accent-dark' : ''
+          class={`mt-2 flex items-center gap-1.5 text-xs theme-text-secondary hover:theme-text transition-colors cursor-pointer w-full ${
+            hasActiveFilters ? 'theme-text-accent' : ''
           }`}
         >
           <svg
@@ -99,7 +99,7 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
                 e.stopPropagation();
                 clearFilters();
               }}
-              class="ml-auto text-danger-dark hover:underline"
+              class="ml-auto theme-text-danger hover:underline"
             >
               Clear
             </button>
@@ -111,9 +111,9 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
           <div class="mt-2 space-y-3">
             {/* Tags */}
             <div>
-              <h4 class="text-xs font-medium text-dark-secondary mb-1.5 uppercase tracking-wider">Tags</h4>
+              <h4 class="text-xs font-medium theme-text-secondary mb-1.5 uppercase tracking-wider">Tags</h4>
               {tags.length === 0 ? (
-                <p class="text-xs text-dark-secondary">No tags yet</p>
+                <p class="text-xs theme-text-secondary">No tags yet</p>
               ) : (
                 <div class="flex flex-wrap gap-1">
                   {tags.map((tag) => (
@@ -122,8 +122,8 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
                       onClick={() => handleTagClick(tag.name)}
                       class={`text-xs px-2 py-1 rounded transition-colors ${
                         activeTag === tag.name
-                          ? 'bg-accent-dark/20 text-accent-dark'
-                          : 'bg-dark-border/30 text-dark-secondary hover:bg-dark-border/50'
+                          ? 'bg-[var(--text-accent)]/20 theme-text-accent'
+                          : 'theme-bg-border/30 theme-text-secondary hover:theme-bg-border/20'
                       }`}
                     >
                       {tag.name}
@@ -135,9 +135,9 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
 
             {/* Folders */}
             <div>
-              <h4 class="text-xs font-medium text-dark-secondary mb-1.5 uppercase tracking-wider">Folders</h4>
+              <h4 class="text-xs font-medium theme-text-secondary mb-1.5 uppercase tracking-wider">Folders</h4>
               {folders.length === 0 ? (
-                <p class="text-xs text-dark-secondary">No folders yet</p>
+                <p class="text-xs theme-text-secondary">No folders yet</p>
               ) : (
                 <div class="space-y-0.5">
                   {folders.map((folder) => (
@@ -146,8 +146,8 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
                       onClick={() => handleFolderClick(folder.id)}
                       class={`flex items-center gap-1.5 text-xs w-full text-left px-2 py-1 rounded transition-colors ${
                         activeFolder === folder.id
-                          ? 'bg-accent-dark/20 text-accent-dark'
-                          : 'text-dark-secondary hover:bg-dark-border/30'
+                          ? 'bg-[var(--text-accent)]/20 theme-text-accent'
+                          : 'theme-text-secondary hover:theme-bg-border/20'
                       }`}
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

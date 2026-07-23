@@ -32,7 +32,7 @@ export default function Header() {
         {user && (
           <button
             onClick={signOut}
-            class="text-sm text-dark-secondary hover:text-danger-dark transition-colors"
+            class="text-sm theme-text-secondary hover:theme-text-danger transition-colors"
           >
             Sign Out
           </button>

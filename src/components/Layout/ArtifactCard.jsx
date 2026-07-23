@@ -7,10 +7,10 @@ export default function ArtifactCard({ artifact, isSelected, onClick, onEdit, on
   return (
     <div
       onClick={onClick}
-      class={`group relative p-3 border-b border-dark-border cursor-pointer transition-colors ${
+      class={`group relative p-3 border-b theme-border cursor-pointer transition-colors ${
         isSelected
-          ? 'bg-dark-panel border-l-2 border-l-accent-dark'
-          : 'hover:bg-dark-border/30 border-l-2 border-l-transparent'
+          ? 'theme-bg-panel border-l-2 border-l-[var(--text-accent)]'
+          : 'hover:theme-bg-border/30 border-l-2 border-l-transparent'
       }`}
     >
       {/* Hover actions bar */}
@@ -18,7 +18,7 @@ export default function ArtifactCard({ artifact, isSelected, onClick, onEdit, on
         {onEdit && (
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(); }}
-            class="p-1.5 rounded transition-colors text-dark-secondary hover:text-accent-dark hover:bg-white/10"
+            class="p-1.5 rounded transition-colors theme-text-secondary hover:theme-text-accent hover:bg-[var(--border-color)]/20"
             title="Edit"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -30,7 +30,7 @@ export default function ArtifactCard({ artifact, isSelected, onClick, onEdit, on
         {onDelete && (
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(); }}
-            class="p-1.5 rounded transition-colors text-dark-secondary hover:text-danger-dark hover:bg-white/10"
+            class="p-1.5 rounded transition-colors theme-text-secondary hover:theme-text-danger hover:bg-[var(--border-color)]/20"
             title="Delete"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -61,11 +61,11 @@ export default function ArtifactCard({ artifact, isSelected, onClick, onEdit, on
 
         {/* Content */}
         <div class="flex-1 min-w-0">
-          <h3 class="text-sm font-medium text-dark-text truncate">
+          <h3 class="text-sm font-medium theme-text truncate">
             {isNote ? artifact.title : (artifact.title || 'Image')}
           </h3>
 
-          <p class="text-xs text-dark-secondary mt-1 line-clamp-2">
+          <p class="text-xs theme-text-secondary mt-1 line-clamp-2">
             {isNote ? getPreview(artifact.content) : 'Image'}
           </p>
 
@@ -73,18 +73,18 @@ export default function ArtifactCard({ artifact, isSelected, onClick, onEdit, on
           {artifact.tagNames?.length > 0 && (
             <div class="flex flex-wrap gap-1 mt-2">
               {artifact.tagNames.slice(0, 3).map((tag) => (
-                <span key={tag} class="text-xs bg-dark-border/30 text-dark-secondary px-1.5 py-0.5 rounded">
+                <span key={tag} class="text-xs theme-bg-border/30 theme-text-secondary px-1.5 py-0.5 rounded">
                   {tag}
                 </span>
               ))}
               {artifact.tagNames.length > 3 && (
-                <span class="text-xs text-dark-secondary">+{artifact.tagNames.length - 3}</span>
+                <span class="text-xs theme-text-secondary">+{artifact.tagNames.length - 3}</span>
               )}
             </div>
           )}
 
           {/* Folder & date */}
-          <div class="flex items-center gap-2 mt-1.5 text-xs text-dark-secondary">
+          <div class="flex items-center gap-2 mt-1.5 text-xs theme-text-secondary">
             {folderName && (
               <span class="flex items-center gap-0.5">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
