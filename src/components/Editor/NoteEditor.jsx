@@ -100,12 +100,15 @@ const MD_BUTTONS = [
 ];
 
 function insertAtCursor(view, prefix, suffix = '') {
+  const docLen = view.state.doc.length;
   const selection = view.state.selection;
-  const text = view.state.sliceDoc(selection.from, selection.to);
+  const from = Math.min(selection.from, docLen);
+  const to = Math.min(selection.to, docLen);
+  const text = view.state.sliceDoc(from, to);
   const insertion = prefix + text + suffix;
   view.dispatch({
-    changes: { from: selection.from, to: selection.to, insert: insertion },
-    selection: { anchor: selection.from + prefix.length },
+    changes: { from, to, insert: insertion },
+    selection: { anchor: from + prefix.length },
   });
   view.focus();
 }
@@ -273,6 +276,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   const editorRef = useRef(null);
   const previewRef = useRef(null);
   const viewRef = useRef(null);
+  const lastSyncedContentRef = useRef('');
 
   useEffect(() => {
     if (!notePath) return;
@@ -319,6 +323,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
 
     setView(newView);
     viewRef.current = newView;
+    lastSyncedContentRef.current = content || '';
     setTimeout(() => newView.focus(), 0);
 
     return () => {
@@ -329,10 +334,16 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   }, [notePath]);
 
   useEffect(() => {
-    if (!view || view.state.doc.toString() === (content || '')) return;
-    view.dispatch({
-      changes: { from: 0, to: view.state.doc.length, insert: content || '' },
-    });
+    if (!view) return;
+    if (content === lastSyncedContentRef.current) return;
+    const doc = content || '';
+    const current = view.state.doc.toString();
+    if (current !== doc) {
+      view.dispatch({
+        changes: { from: 0, to: current.length, insert: doc },
+      });
+      lastSyncedContentRef.current = doc;
+    }
   }, [content, view]);
 
   const handleSave = useCallback(() => {
@@ -384,7 +395,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
 
   const handleMdAction = useCallback((btn) => {
     const currentView = viewRef.current;
-    if (!currentView) return;
+    if (!currentView || currentView.destroyed) return;
     try {
       if (btn.command && mdCommands[btn.command]) {
         mdCommands[btn.command](currentView);
