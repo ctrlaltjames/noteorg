@@ -113,7 +113,9 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <span class="text-sm text-dark-secondary capitalize">{artifact.type}</span>
+          <span class={`text-xs px-2 py-0.5 rounded capitalize ${isNote ? 'bg-accent-dark/20 text-accent-dark' : 'bg-primary-dark/20 text-primary-dark'}`}>
+            {artifact.type}
+          </span>
           <div class="w-px h-5 bg-dark-border" />
           <button
             onClick={() => setShowSplit(!showSplit)}
