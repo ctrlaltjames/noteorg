@@ -46,6 +46,15 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     }
   };
 
+  useEffect(() => {
+    if (gutterRef.current) {
+      gutterRef.current.innerHTML = getLineNumbers(editContent).map((line, i) => {
+        const isCurrent = i + 1 === cursorLine;
+        return `<div class="flex items-center justify-end h-[1.625rem] px-2 ${isCurrent ? 'text-dark-text/80 font-semibold bg-dark-border/20' : ''}">${line}</div>`;
+      }).join('');
+    }
+  }, [editContent, cursorLine]);
+
   const handleSave = async () => {
     if (saving) return;
     setSaving(true);
@@ -131,17 +140,13 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
             <div
               ref={gutterRef}
               class="absolute left-0 top-0 bottom-0 w-12 bg-dark-card text-dark-secondary/40 text-sm font-mono text-right select-none overflow-hidden py-3 border-r border-dark-border/20 z-10"
-              dangerouslySetInnerHTML={{
-                __html: getLineNumbers(editContent).map((line, i) => {
-                  const isCurrent = i + 1 === cursorLine;
-                  return `<div class="flex items-center justify-end h-[1.625rem] px-2 ${isCurrent ? 'text-dark-text/80 font-semibold bg-dark-border/20' : ''}">${line}</div>`;
-                }).join('')
-              }}
             />
             <textarea
               ref={textareaRef}
               value={editContent}
               onInput={(e) => setEditContent(e.target.value)}
+              onKeyUp={handleCursorMove}
+              onSelect={handleCursorMove}
               onScroll={handleScroll}
               placeholder="Start writing..."
               class="absolute left-12 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono p-3"
