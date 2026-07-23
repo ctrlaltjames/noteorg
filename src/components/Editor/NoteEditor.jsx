@@ -35,6 +35,19 @@ const editorTheme = EditorView.theme({
   '.cm-focused': {
     outline: 'none',
   },
+  '.cm-selectionBackground': {
+    background: '#60a5fa !important',
+  },
+  '.cm-selection': {
+    background: '#60a5fa !important',
+  },
+  '.cm-line .cm-selection': {
+    background: '#60a5fa !important',
+  },
+  '.cm-selectionMatch': {
+    background: '#bfdbfe !important',
+    color: '#1e40af',
+  },
   '.cm-matchingBracket': {
     background: '#bfdbfe',
   },
@@ -266,22 +279,6 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
     const tags = getNoteTags(content || '');
     setNoteTagsState(tags);
   }, [notePath, content]);
-
-  useEffect(() => {
-    const styleEl = document.createElement('style');
-    styleEl.textContent = `
-      .noteorg-editor .cm-editor .cm-selectionBackground {
-        background-color: #60a5fa !important;
-      }
-      .noteorg-editor .cm-editor .cm-line .cm-selection {
-        background-color: #60a5fa !important;
-      }
-    `;
-    document.head.appendChild(styleEl);
-    return () => {
-      document.head.removeChild(styleEl);
-    };
-  }, []);
 
   useEffect(() => {
     if (!editorRef.current) return;
