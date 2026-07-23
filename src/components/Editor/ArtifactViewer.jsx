@@ -14,6 +14,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const [showSplit, setShowSplit] = useState(false);
   const textareaRef = useRef(null);
   const gutterRef = useRef(null);
+  const isNote = artifact.type === 'note';
 
   // Update local state when artifact changes
   useEffect(() => {
@@ -238,7 +239,6 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   }
 
   // View mode
-  const isNote = artifact.type === 'note';
   const metadata = artifact.metadata || {};
 
   return (
