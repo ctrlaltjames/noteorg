@@ -22,10 +22,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
 
   const getLineNumbers = (text) => {
     if (!text) return [1];
-    const lines = text.split('\n');
-    const count = lines.length;
-    if (text.endsWith('\n')) return Array.from({ length: count + 1 }, (_, i) => i + 1);
-    return Array.from({ length: count }, (_, i) => i + 1);
+    return Array.from({ length: text.split('\n').length }, (_, i) => i + 1);
   };
 
   const getCurrentLine = (text, cursorPos) => {
