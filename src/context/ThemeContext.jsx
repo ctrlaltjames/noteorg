@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'preact/hooks';
+import { createContext } from 'preact';
+import { useState, useEffect, useCallback, useContext } from 'preact/hooks';
 
 const ThemeContext = createContext();
 

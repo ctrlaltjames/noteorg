@@ -1,5 +1,5 @@
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '@context/AuthContext';
+import { useTheme } from '@context/ThemeContext';
 
 export default function Header() {
   const { user, signOut } = useAuth();

@@ -1,11 +1,11 @@
 import { useState } from 'preact/hooks';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '@context/AppContext';
 import Sidebar from './Sidebar';
 import ArtifactViewer from '../Editor/ArtifactViewer';
 import QuickAddModal from '../Modals/QuickAdd';
 
 export default function AppLayout() {
-  const { selectedArtifact, setSelectedArtifact, loadData } = useApp();
+  const { selectedArtifact, setSelectedArtifact, loadData, refreshArtifact } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
 
@@ -26,6 +26,14 @@ export default function AppLayout() {
 
   const handleSave = async () => {
     await loadData();
+    const updated = await refreshArtifact(selectedArtifact.id);
+    if (updated) {
+      setSelectedArtifact(updated);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
     setIsEditing(false);
   };
 
@@ -41,6 +49,7 @@ export default function AppLayout() {
             artifact={selectedArtifact}
             isEditing={isEditing}
             onEdit={handleEdit}
+            onCancelEdit={handleCancelEdit}
             onClose={handleClose}
             onSave={handleSave}
           />

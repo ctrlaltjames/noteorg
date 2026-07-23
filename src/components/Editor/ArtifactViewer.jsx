@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'preact/hooks';
-import { useApp } from '../../context/AppContext';
-import { renderMarkdown, getPreview } from '../../utils/markdown';
-import { deleteImage } from '../../utils/images';
-import { supabase } from '../../lib/supabase';
+import { useApp } from '@context/AppContext';
+import { renderMarkdown, getPreview } from '@utils/markdown';
+import { deleteImage } from '@utils/images';
+import { supabase } from '@lib/supabase';
 
-export default function ArtifactViewer({ artifact, isEditing, onEdit, onClose, onSave }) {
+export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEdit, onClose, onSave }) {
   const { updateArtifact, deleteArtifact, loadData } = useApp();
   const [editTitle, setEditTitle] = useState(artifact.title || '');
   const [editContent, setEditContent] = useState(artifact.content || '');
@@ -34,9 +34,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onClose, o
         title: editTitle,
         content: editContent,
       });
-      // Reload all data to update tags etc
-      await loadData();
-      onEdit();
+      onSave();
     } catch (err) {
       console.error('Failed to save:', err);
     } finally {
@@ -62,7 +60,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onClose, o
       handleSave();
     }
     if (e.key === 'Escape' && isEditing) {
-      onEdit();
+      onCancelEdit();
     }
   };
 
@@ -73,7 +71,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onClose, o
         <div class="flex items-center justify-between p-3 border-b border-dark-border shrink-0">
           <div class="flex items-center gap-2">
             <button
-              onClick={onClose}
+              onClick={onCancelEdit}
               class="text-dark-secondary hover:text-dark-text transition-colors"
               title="Back"
             >
@@ -101,7 +99,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onClose, o
         </div>
 
         {/* Edit form */}
-        <div class="flex-1 overflow-y-auto p-4">
+        <div class="flex-1 p-4 overflow-hidden">
           <input
             type="text"
             value={editTitle}
@@ -114,7 +112,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onClose, o
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             placeholder="Start writing..."
-            class="w-full h-full resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono"
+            class="w-full min-h-[200px] resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono"
             spellCheck
           />
         </div>

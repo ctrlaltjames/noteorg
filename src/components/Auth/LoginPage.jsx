@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@context/AuthContext';
 
 export default function LoginPage() {
   const { signIn, signUp, signInWithGitHub } = useAuth();
@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,6 +17,7 @@ export default function LoginPage() {
     try {
       if (isSignUp) {
         await signUp(email, password);
+        setSignupSuccess(true);
       } else {
         await signIn(email, password);
       }
@@ -51,6 +53,13 @@ export default function LoginPage() {
           {error && (
             <div class="bg-danger-dark/10 border border-danger-dark/30 text-danger-dark rounded p-3 mb-4 text-sm">
               {error}
+            </div>
+          )}
+
+          {signupSuccess && (
+            <div class="bg-success-dark/10 border border-success-dark/30 text-success-dark rounded p-3 mb-4 text-sm">
+              <p class="font-medium mb-1">Check your email!</p>
+              <p>We sent a confirmation link to <strong>{email}</strong>. Click the link to verify your account, then come back and sign in.</p>
             </div>
           )}
 
@@ -117,7 +126,7 @@ export default function LoginPage() {
           <p class="text-center text-sm text-dark-secondary mt-4">
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
-              onClick={() => { setIsSignUp(!isSignUp); setError(''); }}
+              onClick={() => { setIsSignUp(!isSignUp); setError(''); setSignupSuccess(false); }}
               class="text-accent-dark hover:underline font-medium"
             >
               {isSignUp ? 'Sign In' : 'Sign Up'}

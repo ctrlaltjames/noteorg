@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'preact/hooks';
-import { supabase } from '../lib/supabase';
+import { createContext } from 'preact';
+import { useState, useEffect, useCallback, useContext } from 'preact/hooks';
+import { supabase } from '@lib/supabase';
 
 const AuthContext = createContext();
 

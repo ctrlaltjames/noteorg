@@ -1,4 +1,4 @@
-import { getPreview } from '../../utils/markdown';
+import { getPreview } from '@utils/markdown';
 
 export default function ArtifactCard({ artifact, isSelected, onClick }) {
   const isNote = artifact.type === 'note';

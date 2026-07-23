@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useCallback } from 'preact/hooks';
-import { supabase } from '../lib/supabase';
+import { createContext } from 'preact';
+import { useState, useCallback, useContext, useEffect } from 'preact/hooks';
+import { supabase } from '@lib/supabase';
 
 const AppContext = createContext();
 
@@ -13,39 +14,64 @@ export function AppProvider({ children, user }) {
   const [activeFolder, setActiveFolder] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Load data when user changes
+  useEffect(() => {
+    if (user) {
+      loadData();
+    }
+  }, [user]);
+
   // Fetch all artifacts with optional filters
   const fetchArtifacts = useCallback(async (query, tag, folder) => {
     if (!user) return;
     setLoading(true);
     try {
-      let queryBuilder = supabase
+      const { data, error } = await supabase
         .from('artifacts')
-        .select('*, folder:folders(name), tags:artifact_tags(tag_id), tag_details:artifact_tags(tag_id, tags(name))')
+        .select('*')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
 
-      if (query) {
-        queryBuilder = queryBuilder.ilike('title', `%${query}%`).or(`content.ilike.%${query}%`);
-      }
-
-      if (tag) {
-        queryBuilder = queryBuilder.eq('tag_details.tags.name', tag);
-      }
-
-      if (folder) {
-        queryBuilder = queryBuilder.eq('folder_id', folder);
-      }
-
-      const { data, error } = await queryBuilder;
       if (error) throw error;
 
-      // Flatten the nested tag data
-      const flatArtifacts = (data || []).map((item) => ({
+      // Fetch tag names for all artifacts
+      let artifactList = (data || []).map((item) => ({
         ...item,
-        tagNames: (item.tag_details || []).map((t) => t.tags?.name || t.tag_details?.name).filter(Boolean),
+        tagNames: [],
       }));
 
-      setArtifacts(flatArtifacts);
+      if (artifactList.length > 0) {
+        const artifactIds = artifactList.map((a) => a.id);
+        const { data: tagData } = await supabase
+          .from('artifact_tags')
+          .select('artifact_id, tag_id')
+          .in('artifact_id', artifactIds);
+
+        const { data: tagDetails } = await supabase
+          .from('tags')
+          .select('id, name')
+          .in('id', tagData ? tagData.map((t) => t.tag_id) : []);
+
+        const tagMap = {};
+        if (tagDetails) {
+          tagDetails.forEach((t) => {
+            if (!tagMap[t.id]) tagMap[t.id] = t.name;
+          });
+        }
+
+        artifactList = artifactList.map((a) => {
+          const artifactTags = tagData ? tagData.filter((t) => t.artifact_id === a.id) : [];
+          a.tagNames = artifactTags.map((t) => tagMap[t.tag_id] || '').filter(Boolean);
+          return a;
+        });
+      }
+
+      // Filter by tag if specified
+      if (tag) {
+        artifactList = artifactList.filter((a) => a.tagNames.includes(tag));
+      }
+
+      setArtifacts(artifactList);
     } catch (err) {
       console.error('Failed to fetch artifacts:', err);
     } finally {
@@ -78,16 +104,17 @@ export function AppProvider({ children, user }) {
   // Create a new artifact
   const createArtifact = useCallback(async (artifactData) => {
     if (!user) return;
+    const { tagIds, ...artifactWithoutTags } = artifactData;
     const { data, error } = await supabase
       .from('artifacts')
-      .insert({ ...artifactData, user_id: user.id })
+      .insert({ ...artifactWithoutTags, user_id: user.id })
       .select()
       .single();
     if (error) throw error;
 
     // Add tags if provided
-    if (artifactData.tagIds?.length) {
-      const tagRecords = artifactData.tagIds.map((tagId) => ({
+    if (tagIds?.length) {
+      const tagRecords = tagIds.map((tagId) => ({
         artifact_id: data.id,
         tag_id: tagId,
       }));
@@ -162,6 +189,18 @@ export function AppProvider({ children, user }) {
     ]);
   }, [user, searchQuery, activeTag, activeFolder, fetchArtifacts, fetchTags, fetchFolders]);
 
+  // Refresh a single artifact from the database
+  const refreshArtifact = useCallback(async (id) => {
+    if (!user) return null;
+    const { data, error } = await supabase
+      .from('artifacts')
+      .select('*, folder:folders(name)')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+    return data;
+  }, [user]);
+
   // Apply filters and fetch
   const applyFilters = useCallback((query, tag, folder) => {
     setSearchQuery(query || '');
@@ -191,6 +230,7 @@ export function AppProvider({ children, user }) {
     fetchArtifacts,
     applyFilters,
     loadData,
+    refreshArtifact,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

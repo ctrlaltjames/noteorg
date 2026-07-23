@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
-import { useApp } from '../../context/AppContext';
-import { uploadImage } from '../../utils/images';
-import { useAuth } from '../../context/AuthContext';
+import { useApp } from '@context/AppContext';
+import { uploadImage } from '@utils/images';
+import { useAuth } from '@context/AuthContext';
 
 export default function QuickAddModal({ onClose }) {
   const { createArtifact, createTag, createFolder, tags, folders, loadData } = useApp();

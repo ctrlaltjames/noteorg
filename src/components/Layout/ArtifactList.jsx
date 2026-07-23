@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '@context/AppContext';
 import ArtifactCard from './ArtifactCard';
 
 export default function ArtifactList({ onArtifactSelect }) {

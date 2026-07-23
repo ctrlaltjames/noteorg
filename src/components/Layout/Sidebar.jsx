@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '@context/AppContext';
 import ArtifactList from './ArtifactList';
 
 export default function Sidebar({ onOpenQuickAdd, onArtifactSelect }) {

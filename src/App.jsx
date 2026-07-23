@@ -1,9 +1,9 @@
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
-import { AppProvider } from './context/AppContext';
-import LoginPage from './components/Auth/LoginPage';
-import Header from './components/Layout/Header';
-import AppLayout from './components/Layout/AppLayout';
+import { AuthProvider, useAuth } from '@context/AuthContext';
+import { ThemeProvider } from '@context/ThemeContext';
+import { AppProvider } from '@context/AppContext';
+import LoginPage from '@components/Auth/LoginPage';
+import Header from '@components/Layout/Header';
+import AppLayout from '@components/Layout/AppLayout';
 
 function AppContent() {
   const { user, loading } = useAuth();
