@@ -100,84 +100,89 @@ const MD_BUTTONS = [
 ];
 
 function insertAtCursor(view, prefix, suffix = '') {
-  if (!view || view.destroyed) return;
-  const state = view.state;
-  const docLen = state.doc.length;
-  const selection = state.selection;
-  const from = Math.min(selection.from, docLen);
-  const to = Math.min(selection.to, docLen);
-  const text = state.sliceDoc(from, to);
+  const docLen = view.state.doc.length;
+  const range = view.state.selection.ranges[0];
+  const from = Math.min(range.from, docLen);
+  const to = Math.min(range.to, docLen);
+  const text = view.state.sliceDoc(from, to);
   const insertion = prefix + text + suffix;
-  const tr = state.transaction({
+  view.dispatch({
     changes: { from, to, insert: insertion },
     selection: { anchor: Math.min(from + prefix.length, docLen + insertion.length) },
   });
-  view.dispatch(tr);
   view.focus();
 }
 
 function wrapLine(view, prefix, suffix) {
-  if (!view || view.destroyed) return;
-  const state = view.state;
-  const line = state.selection.ranges[0];
-  const lineObj = state.doc.lineAt(line.from);
+  const line = view.state.selection.ranges[0];
+  const from = line.from;
+  const to = line.to;
+  const lineObj = view.state.doc.lineAt(from);
   const lineStart = lineObj.from;
   const lineEnd = lineObj.to;
-  const lineText = state.sliceDoc(lineStart, lineEnd);
+  const lineText = view.state.sliceDoc(lineStart, lineEnd);
   const trimmed = lineText.trim();
+  const leadingSpaces = lineText.match(/^(\s*)/)[1];
 
   if (trimmed === '') {
-    const tr = state.transaction({
+    view.dispatch({
       changes: { from: lineStart, to: lineEnd, insert: prefix + suffix },
       selection: { anchor: lineStart + prefix.length },
     });
-    view.dispatch(tr);
   } else {
     const newLine = prefix + lineText + suffix;
-    const tr = state.transaction({
+    view.dispatch({
       changes: { from: lineStart, to: lineEnd, insert: newLine },
     });
-    view.dispatch(tr);
   }
   view.focus();
 }
 
 function toggleBold(view) {
-  if (!view || view.destroyed) return;
-  const state = view.state;
-  const { from, to } = state.selection;
-  const text = state.sliceDoc(from, to);
+  const range = view.state.selection.ranges[0];
+  const text = view.state.sliceDoc(range.from, range.to);
 
-  const tr = state.transaction({
-    changes: { from, to, insert: text.startsWith('**') && text.endsWith('**') ? text.slice(2, -2) : `**${text}**` },
-  });
-  view.dispatch(tr);
+  if (text.startsWith('**') && text.endsWith('**')) {
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: text.slice(2, -2) },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: `**${text}**` },
+    });
+  }
   view.focus();
 }
 
 function toggleItalic(view) {
-  if (!view || view.destroyed) return;
-  const state = view.state;
-  const { from, to } = state.selection;
-  const text = state.sliceDoc(from, to);
+  const range = view.state.selection.ranges[0];
+  const text = view.state.sliceDoc(range.from, range.to);
 
-  const tr = state.transaction({
-    changes: { from, to, insert: text.startsWith('*') && text.endsWith('*') && !text.startsWith('**') ? text.slice(1, -1) : `*${text}*` },
-  });
-  view.dispatch(tr);
+  if (text.startsWith('*') && text.endsWith('*') && !text.startsWith('**')) {
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: text.slice(1, -1) },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: `*${text}*` },
+    });
+  }
   view.focus();
 }
 
 function toggleStrike(view) {
-  if (!view || view.destroyed) return;
-  const state = view.state;
-  const { from, to } = state.selection;
-  const text = state.sliceDoc(from, to);
+  const range = view.state.selection.ranges[0];
+  const text = view.state.sliceDoc(range.from, range.to);
 
-  const tr = state.transaction({
-    changes: { from, to, insert: text.startsWith('~~') && text.endsWith('~~') ? text.slice(2, -2) : `~~${text}~~` },
-  });
-  view.dispatch(tr);
+  if (text.startsWith('~~') && text.endsWith('~~')) {
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: text.slice(2, -2) },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: `~~${text}~~` },
+    });
+  }
   view.focus();
 }
 
@@ -186,15 +191,18 @@ function toggleQuote(view) {
 }
 
 function toggleCode(view) {
-  if (!view || view.destroyed) return;
-  const state = view.state;
-  const { from, to } = state.selection;
-  const text = state.sliceDoc(from, to);
+  const range = view.state.selection.ranges[0];
+  const text = view.state.sliceDoc(range.from, range.to);
 
-  const tr = state.transaction({
-    changes: { from, to, insert: text.startsWith('`') && text.endsWith('`') ? text.slice(1, -1) : `\`${text}\`` },
-  });
-  view.dispatch(tr);
+  if (text.startsWith('`') && text.endsWith('`')) {
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: text.slice(1, -1) },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: `\`${text}\`` },
+    });
+  }
   view.focus();
 }
 
@@ -215,35 +223,28 @@ function toggleCheck(view) {
 }
 
 function insertLink(view) {
-  if (!view || view.destroyed) return;
-  const state = view.state;
-  const { from, to } = state.selection;
-  const text = state.sliceDoc(from, to);
+  const range = view.state.selection.ranges[0];
+  const text = view.state.sliceDoc(range.from, range.to);
 
   if (text) {
-    const tr = state.transaction({
-      changes: { from, to, insert: `[${text}](url)` },
-      selection: { anchor: from + text.length + 4 },
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: `[${text}](url)` },
+      selection: { anchor: range.from + text.length + 4 },
     });
-    view.dispatch(tr);
   } else {
-    const tr = state.transaction({
-      changes: { from, to, insert: '[](url)' },
-      selection: { anchor: from + 1 },
+    view.dispatch({
+      changes: { from: range.from, to: range.to, insert: '[](url)' },
+      selection: { anchor: range.from + 1 },
     });
-    view.dispatch(tr);
   }
   view.focus();
 }
 
 function insertHR(view) {
-  if (!view || view.destroyed) return;
-  const state = view.state;
-  const pos = state.selection.from;
-  const tr = state.transaction({
+  const pos = view.state.selection.ranges[0].from;
+  view.dispatch({
     changes: { from: pos, to: pos, insert: '\n---\n' },
   });
-  view.dispatch(tr);
   view.focus();
 }
 
@@ -262,6 +263,7 @@ const mdCommands = {
 };
 
 export default function NoteEditor({ notePath, content, onChange, onSave, onDelete }) {
+  const [view, setView] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [splitMode, setSplitMode] = useState(false);
   const [noteTags, setNoteTagsState] = useState([]);
@@ -269,13 +271,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   const editorRef = useRef(null);
   const previewRef = useRef(null);
   const viewRef = useRef(null);
-  const onChangeRef = useRef(onChange);
   const lastSyncedContentRef = useRef('');
-  const syncingRef = useRef(false);
-
-  useEffect(() => {
-    onChangeRef.current = onChange;
-  }, [onChange]);
 
   useEffect(() => {
     if (!notePath) return;
@@ -295,7 +291,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
       EditorView.lineWrapping,
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          onChangeRef.current(update.state.doc.toString());
+          onChange(update.state.doc.toString());
         }
       }),
       markdown({
@@ -320,48 +316,31 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
       parent: editorRef.current,
     });
 
+    setView(newView);
     viewRef.current = newView;
+    console.log('[MD] Created EditorView, stored in viewRef');
     lastSyncedContentRef.current = content || '';
     setTimeout(() => newView.focus(), 0);
 
     return () => {
       newView.destroy();
+      setView(null);
       viewRef.current = null;
     };
   }, [notePath]);
 
   useEffect(() => {
-    const view = viewRef.current;
     if (!view) return;
     if (content === lastSyncedContentRef.current) return;
-    if (syncingRef.current) return;
     const doc = content || '';
     const current = view.state.doc.toString();
     if (current !== doc) {
-      try {
-        const state = view.state;
-        const tr = state.transaction({
-          changes: { from: 0, to: state.doc.length, insert: doc },
-        });
-        view.dispatch(tr);
-        lastSyncedContentRef.current = doc;
-      } catch (err) {
-        if (err.message && err.message.includes('wrong length')) {
-          const state = view.state;
-          const updated = state.doc.toString();
-          if (updated !== doc) {
-            const tr = state.transaction({
-              changes: { from: 0, to: state.doc.length, insert: doc },
-            });
-            view.dispatch(tr);
-            lastSyncedContentRef.current = doc;
-          }
-        } else {
-          throw err;
-        }
-      }
+      view.dispatch({
+        changes: { from: 0, to: current.length, insert: doc },
+      });
+      lastSyncedContentRef.current = doc;
     }
-  }, [content]);
+  }, [content, view]);
 
   const handleSave = useCallback(() => {
     if (onSave) onSave();
@@ -412,27 +391,25 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
 
   const handleMdAction = useCallback((btn) => {
     const currentView = viewRef.current;
-    if (!currentView || currentView.destroyed) return;
-    syncingRef.current = true;
+    console.log('[MD] btn:', btn.title, 'viewRef:', currentView, 'view state:', currentView?.state?.doc?.length);
+    if (!currentView) {
+      console.log('[MD] viewRef.current is NULL — editor not ready');
+      return;
+    }
+    if (currentView.destroyed) {
+      console.log('[MD] view destroyed');
+      return;
+    }
     try {
-      const docLen = currentView.state.doc.length;
-      const selection = currentView.state.selection;
-      const from = Math.max(0, Math.min(selection.from, docLen));
-      const to = Math.max(0, Math.min(selection.to, docLen));
-      if (from > to) {
-        syncingRef.current = false;
-        return;
-      }
       if (btn.command && mdCommands[btn.command]) {
+        console.log('[MD] calling command:', btn.command);
         mdCommands[btn.command](currentView);
       } else if (btn.insert !== null && btn.insert !== undefined) {
+        console.log('[MD] calling insertAtCursor:', btn.insert);
         insertAtCursor(currentView, btn.insert);
       }
     } catch (err) {
-      syncingRef.current = false;
-      return;
-    } finally {
-      syncingRef.current = false;
+      console.error('[MD] command threw:', err);
     }
   }, []);
 
@@ -463,6 +440,7 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
               e.preventDefault();
               handleMdAction(btn);
             }}
+            onClick={() => {}}
             title={btn.title}
             className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded transition-colors"
           >
