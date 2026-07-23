@@ -31,28 +31,18 @@ const editorTheme = EditorView.theme({
   },
   '.cm-activeLine': {
     background: 'transparent',
-    position: 'relative',
-    zIndex: '0',
-  },
-  '.cm-activeLine::before': {
-    content: '""',
-    position: 'absolute',
-    inset: '0 -10px',
-    background: '#f9fafb',
-    zIndex: '-1',
-    pointerEvents: 'none',
   },
   '.cm-focused': {
     outline: 'none',
   },
   '.cm-selectionBackground': {
-    background: '#93c5fd',
+    background: '#60a5fa',
   },
   '.cm-selection': {
-    background: '#93c5fd',
+    background: '#60a5fa',
   },
   '.cm-line .cm-selection': {
-    background: '#93c5fd',
+    background: '#60a5fa',
   },
   '.cm-selectionMatch': {
     background: '#bfdbfe !important',
