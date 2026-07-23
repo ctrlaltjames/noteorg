@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
 import FolderNode from './FolderNode';
 
-export default function FolderTree({ selectedPath, onSelect, onRename }) {
+export default function FolderTree({ selectedPath, onSelect, onRename, onContextMenu }) {
   const { listDirectory, refreshKey } = useFileSystem();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +64,7 @@ export default function FolderTree({ selectedPath, onSelect, onRename }) {
           onSelect={handleSelect}
           onContext={handleContext}
           onRename={onRename}
+          onContextMenu={onContextMenu}
           selectedPath={selectedPath}
         />
       ))}

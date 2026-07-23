@@ -1,14 +1,14 @@
 import { useState, useCallback, useEffect, useRef } from 'preact/hooks';
 import { useFileSystem } from '../../context/FileSystemContext';
+import { useAppState } from '../../context/AppStateContext';
 
-export default function FolderNode({ item, depth, onSelect, onContext, onRename, selectedPath }) {
+export default function FolderNode({ item, depth, onSelect, onContext, onRename, onContextMenu, selectedPath }) {
   const { listDirectory } = useFileSystem();
+  const { handleCloseContextMenu } = useAppState();
   const [expanded, setExpanded] = useState(false);
   const [children, setChildren] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [menuPos, setMenuPos] = useState(null);
-  const menuOpenRef = useRef(false);
-  const menuRef = useRef(null);
+  const closeRef = useRef(false);
 
   const isSelected = selectedPath === item.path;
   const isExpanded = expanded || (item.kind === 'directory' && depth < 2);
@@ -26,27 +26,27 @@ export default function FolderNode({ item, depth, onSelect, onContext, onRename,
     e.preventDefault();
     e.stopPropagation();
     if (item.kind === 'file') {
-      menuOpenRef.current = true;
-      setMenuPos({ x: e.clientX, y: e.clientY });
+      closeRef.current = true;
+      onContextMenu?.(e.clientX, e.clientY, item.path, item.name);
     } else if (onContext) {
       onContext(item, e);
     }
-  }, [item, onContext]);
+  }, [item, onContext, onContextMenu]);
 
   const handleRename = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     if (onRename && item.kind === 'file') {
       onRename(item.path, item.name);
-      menuOpenRef.current = false;
-      setMenuPos(null);
+      closeRef.current = false;
+      handleCloseContextMenu();
     }
-  }, [onRename, item]);
+  }, [onRename, item, handleCloseContextMenu]);
 
   const closeMenu = useCallback(() => {
-    menuOpenRef.current = false;
-    setMenuPos(null);
-  }, []);
+    closeRef.current = false;
+    handleCloseContextMenu();
+  }, [handleCloseContextMenu]);
 
   const handleExpand = useCallback(async () => {
     if (expanded || loading || children.length > 0) return;
@@ -70,9 +70,7 @@ export default function FolderNode({ item, depth, onSelect, onContext, onRename,
 
   // Single shared handler that checks ref synchronously
   const handleOutsideClick = useCallback((e) => {
-    if (!menuOpenRef.current) return;
-    // Don't close if click is inside the menu
-    if (menuRef.current && menuRef.current.contains(e.target)) return;
+    if (!closeRef.current) return;
     closeMenu();
   }, [closeMenu]);
 
@@ -121,28 +119,11 @@ export default function FolderNode({ item, depth, onSelect, onContext, onRename,
                 onSelect={onSelect}
                 onContext={onContext}
                 onRename={onRename}
+                onContextMenu={onContextMenu}
                 selectedPath={selectedPath}
               />
             ))
           )}
-        </div>
-      )}
-      {menuPos && item.kind === 'file' && (
-        <div
-          ref={menuRef}
-          className="fixed bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[95] min-w-[180px]"
-          style={{ left: menuPos.x, top: menuPos.y }}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <button
-            onPointerDown={handleRename}
-            className="w-full px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-3.586l-7.586 7.586a1.414 1.414 0 000 2l2.828 2.828a1.414 1.414 0 002 0l7.586-7.586a1.414 1.414 0 000-2l-2.828-2.828a1.414 1.414 0 00-2 0z" />
-            </svg>
-            Rename
-          </button>
         </div>
       )}
     </div>

@@ -46,6 +46,7 @@ export function AppStateProvider({ children }) {
   const [saveError, setSaveError] = useState(null);
   const [lastSaveTime, setLastSaveTime] = useState(null);
   const [renameModal, setRenameModal] = useState({ show: false, path: '', currentName: '' });
+  const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, path: '', name: '' });
   const searchTimeoutRef = useRef(null);
   const searchIndexRef = useRef(null);
   const notesRef = useRef([]);
@@ -302,6 +303,14 @@ export function AppStateProvider({ children }) {
     handleCloseRename();
   }, [renameModal, fileSystem, noteContents, selectedNote, handleCloseRename]);
 
+  const handleOpenContextMenu = useCallback((x, y, path, name) => {
+    setContextMenu({ show: true, x, y, path, name });
+  }, []);
+
+  const handleCloseContextMenu = useCallback(() => {
+    setContextMenu({ show: false, x: 0, y: 0, path: '', name: '' });
+  }, []);
+
   const handleUpdateNoteTags = useCallback((notePath, tags) => {
     setNoteTags((prev) => ({ ...prev, [notePath]: tags }));
     if (noteTitles[notePath]) {
@@ -389,6 +398,9 @@ export function AppStateProvider({ children }) {
     handleOpenRename,
     handleCloseRename,
     handleSaveRename,
+    contextMenu,
+    handleOpenContextMenu,
+    handleCloseContextMenu,
   };
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

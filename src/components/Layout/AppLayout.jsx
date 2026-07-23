@@ -9,6 +9,7 @@ import TagEditor from '../Modals/TagEditor';
 import RenameModal from '../Modals/RenameModal';
 import SettingsModal from '../Modals/SettingsModal';
 import ImageViewer from '../Modals/ImageViewer';
+import ContextMenu from '../ContextMenu';
 
 export default function AppLayout() {
   const { directoryHandle, lastFolderName, openDirectory } = useFileSystem();
@@ -22,6 +23,8 @@ export default function AppLayout() {
     sidebarCollapsed,
     setSidebarCollapsed,
     handleOpenRename,
+    handleOpenContextMenu,
+    handleCloseContextMenu,
   } = useAppState();
   const [showFolderPicker, setShowFolderPicker] = useState(false);
 
@@ -63,6 +66,7 @@ export default function AppLayout() {
             selectedPath={selectedNote?.path}
             onSelect={handleSelectNoteItem}
             onRename={handleOpenRename}
+            onContextMenu={handleOpenContextMenu}
           />
         </div>
 
@@ -94,6 +98,9 @@ export default function AppLayout() {
 
       {/* Image viewer */}
       <ImageViewer />
+
+      {/* Context menu (outside sidebar transform) */}
+      <ContextMenu />
     </div>
   );
 }
