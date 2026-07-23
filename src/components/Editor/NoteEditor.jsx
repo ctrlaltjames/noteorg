@@ -30,7 +30,9 @@ const editorTheme = EditorView.theme({
     borderLeftColor: '#111827',
   },
   '.cm-activeLine': {
-    background: '#f9fafb',
+    background: 'transparent',
+    borderLeft: '2px solid #3b82f6',
+    paddingLeft: '6px',
   },
   '.cm-focused': {
     outline: 'none',
