@@ -2,57 +2,263 @@ import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
-import { syntaxHighlighting } from '@codemirror/language';
+import { syntaxHighlighting, bracketMatching } from '@codemirror/language';
+import { highlightSpecialChars, drawSelection, highlightActiveLine } from '@codemirror/view';
 import { parseFrontmatter, buildFrontmatter } from '../../utils/markdown';
 import { getNoteTags, setNoteTags } from '../../utils/tags';
 import MarkdownPreview from './MarkdownPreview';
 
-const theme = EditorView.theme({
-  '.cm-editor': {
+const editorTheme = EditorView.theme({
+  '&': {
     height: '100%',
-    background: 'transparent',
+    fontSize: '14px',
+  },
+  '.cm-content': {
+    padding: '0',
+    color: '#111827',
+    lineHeight: '1.7',
+  },
+  '.cm-line': {
+    color: '#111827',
   },
   '.cm-scroller': {
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
-    fontSize: '14px',
-    lineHeight: '1.6',
-  },
-  '.cm-content': {
-    padding: '16px',
-    color: '#111827',
-  },
-  '.cm-line': {
-    minHeight: '1.6em',
-    color: '#111827',
+    lineHeight: '1.7',
+    overflowX: 'auto',
   },
   '.cm-cursor': {
     borderLeftColor: '#111827',
   },
-  '.cm-dropCursor': {
+  '.cm-selectionBackground': {
+    background: '#bfdbfe',
+  },
+  '.cm-activeLine': {
+    background: '#f9fafb',
+  },
+  '.cm-focused': {
+    outline: 'none',
+  },
+  '.cm-matchingBracket': {
+    background: '#bfdbfe',
+  },
+  '.cm-lineNumber': {
+    color: '#9ca3af',
+    fontSize: '12px',
+  },
+  '.cm-gutters': {
+    background: '#f9fafb',
+    borderRight: '1px solid #e5e7eb',
+    color: '#6b7280',
+  },
+  '.cm-tooltip-autocomplete': {
+    background: '#ffffff',
+    border: '1px solid #e5e7eb',
+    borderRadius: '6px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+    fontSize: '13px',
+  },
+  '.cm-tooltip-autocomplete > div': {
+    padding: '4px 8px',
+  },
+  '.cm-tooltip-autocomplete > div[aria-selected]': {
+    background: '#eff6ff',
+  },
+  '.cm-panel': {
+    background: '#ffffff',
     color: '#111827',
   },
-  '@media (prefers-color-scheme: dark)': {
-    '.cm-content': {
-      color: '#f3f4f6',
-    },
-    '.cm-line': {
-      color: '#f3f4f6',
-    },
-    '.cm-cursor': {
-      borderLeftColor: '#f3f4f6',
-    },
-    '.cm-dropCursor': {
-      color: '#f3f4f6',
-    },
+  '.cm-panel search': {
+    color: '#111827',
   },
 });
+
+const MD_BUTTONS = [
+  { label: 'H1', insert: '# ', title: 'Heading 1' },
+  { label: 'H2', insert: '## ', title: 'Heading 2' },
+  { label: 'H3', insert: '### ', title: 'Heading 3' },
+  { label: 'B', insert: null, command: 'toggleBold', title: 'Bold' },
+  { label: 'I', insert: null, command: 'toggleItalic', title: 'Italic' },
+  { label: 'S', insert: null, command: 'toggleStrike', title: 'Strikethrough' },
+  { label: '"', insert: null, command: 'toggleQuote', title: 'Blockquote' },
+  { label: '<>', insert: null, command: 'toggleCode', title: 'Inline Code' },
+  { label: 'Code', insert: null, command: 'toggleCodeBlock', title: 'Code Block' },
+  { label: '•', insert: null, command: 'toggleBullet', title: 'Bullet List' },
+  { label: '1.', insert: null, command: 'toggleNumbered', title: 'Numbered List' },
+  { label: '[]', insert: null, command: 'toggleCheck', title: 'Task List' },
+  { label: '🔗', insert: null, command: 'insertLink', title: 'Link' },
+  { label: '—', insert: null, command: 'insertHR', title: 'Horizontal Rule' },
+];
+
+function insertAtCursor(view, prefix, suffix = '') {
+  const selection = view.state.selection;
+  const text = view.state.sliceDoc(selection.from, selection.to);
+  const insertion = prefix + text + suffix;
+  view.dispatch({
+    changes: { from: selection.from, to: selection.to, insert: insertion },
+    selection: { anchor: selection.from + prefix.length },
+  });
+  view.focus();
+}
+
+function wrapLine(view, prefix, suffix) {
+  const line = view.state.selection.ranges[0];
+  const from = line.from;
+  const to = line.to;
+  const lineObj = view.state.doc.lineAt(from);
+  const lineStart = lineObj.from;
+  const lineEnd = lineObj.to;
+  const lineText = view.state.sliceDoc(lineStart, lineEnd);
+  const trimmed = lineText.trim();
+  const leadingSpaces = lineText.match(/^(\s*)/)[1];
+
+  if (trimmed === '') {
+    view.dispatch({
+      changes: { from: lineStart, to: lineEnd, insert: prefix + suffix },
+      selection: { anchor: lineStart + prefix.length },
+    });
+  } else {
+    const newLine = prefix + lineText + suffix;
+    view.dispatch({
+      changes: { from: lineStart, to: lineEnd, insert: newLine },
+    });
+  }
+  view.focus();
+}
+
+function toggleBold(view) {
+  const { state } = view;
+  const selection = state.selection;
+  const text = state.sliceDoc(selection.from, selection.to);
+
+  if (text.startsWith('**') && text.endsWith('**')) {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: text.slice(2, -2) },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: `**${text}**` },
+    });
+  }
+  view.focus();
+}
+
+function toggleItalic(view) {
+  const { state } = view;
+  const selection = state.selection;
+  const text = state.sliceDoc(selection.from, selection.to);
+
+  if (text.startsWith('*') && text.endsWith('*') && !text.startsWith('**')) {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: text.slice(1, -1) },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: `*${text}*` },
+    });
+  }
+  view.focus();
+}
+
+function toggleStrike(view) {
+  const { state } = view;
+  const selection = state.selection;
+  const text = state.sliceDoc(selection.from, selection.to);
+
+  if (text.startsWith('~~') && text.endsWith('~~')) {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: text.slice(2, -2) },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: `~~${text}~~` },
+    });
+  }
+  view.focus();
+}
+
+function toggleQuote(view) {
+  wrapLine(view, '> ', '');
+}
+
+function toggleCode(view) {
+  const { state } = view;
+  const selection = state.selection;
+  const text = state.sliceDoc(selection.from, selection.to);
+
+  if (text.startsWith('`') && text.endsWith('`')) {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: text.slice(1, -1) },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: `\`${text}\`` },
+    });
+  }
+  view.focus();
+}
+
+function toggleCodeBlock(view) {
+  wrapLine(view, '```\n', '\n```');
+}
+
+function toggleBullet(view) {
+  wrapLine(view, '- ', '');
+}
+
+function toggleNumbered(view) {
+  wrapLine(view, '1. ', '');
+}
+
+function toggleCheck(view) {
+  wrapLine(view, '- [ ] ', '');
+}
+
+function insertLink(view) {
+  const { state } = view;
+  const selection = state.selection;
+  const text = state.sliceDoc(selection.from, selection.to);
+
+  if (text) {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: `[${text}](url)` },
+      selection: { anchor: selection.from + text.length + 4 },
+    });
+  } else {
+    view.dispatch({
+      changes: { from: selection.from, to: selection.to, insert: '[](url)' },
+      selection: { anchor: selection.from + 1 },
+    });
+  }
+  view.focus();
+}
+
+function insertHR(view) {
+  const pos = view.state.selection.from;
+  view.dispatch({
+    changes: { from: pos, to: pos, insert: '\n---\n' },
+  });
+  view.focus();
+}
+
+const mdCommands = {
+  toggleBold,
+  toggleItalic,
+  toggleStrike,
+  toggleQuote,
+  toggleCode,
+  toggleCodeBlock,
+  toggleBullet,
+  toggleNumbered,
+  toggleCheck,
+  insertLink,
+  insertHR,
+};
 
 export default function NoteEditor({ notePath, content, onChange, onSave, onDelete }) {
   const [view, setView] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [splitMode, setSplitMode] = useState(false);
   const [noteTags, setNoteTagsState] = useState([]);
-  const [isEditingTags, setIsEditingTags] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const editorRef = useRef(null);
   const previewRef = useRef(null);
@@ -66,22 +272,34 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   useEffect(() => {
     if (!editorRef.current) return;
 
+    const extensions = [
+      basicSetup,
+      highlightSpecialChars(),
+      drawSelection(),
+      bracketMatching(),
+      syntaxHighlighting(),
+      highlightActiveLine(),
+      EditorView.lineWrapping,
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          onChange(update.state.doc.toString());
+        }
+      }),
+      markdown({
+        base: markdownLanguage,
+        codeLanguages: {
+          js: 'javascript', py: 'python', html: 'html', css: 'css',
+          ts: 'typescript', bash: 'bash', sql: 'sql', rust: 'rust',
+          go: 'go', java: 'java', json: 'json',
+        },
+      }),
+      editorTheme,
+      EditorView.editable.of(!!notePath),
+    ];
+
     const startState = EditorState.create({
       doc: content || '',
-      extensions: [
-        basicSetup,
-        markdown({
-          base: markdownLanguage,
-          codeLanguages: { js: 'javascript', py: 'python', html: 'html', css: 'css' },
-        }),
-        theme,
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            onChange(update.state.doc.toString());
-          }
-        }),
-        EditorView.editable.of(!!notePath),
-      ],
+      extensions,
     });
 
     const newView = new EditorView({
@@ -151,6 +369,15 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
     }
   }, [handleAddTag]);
 
+  const handleMdAction = useCallback((btn) => {
+    if (!view) return;
+    if (btn.command && mdCommands[btn.command]) {
+      mdCommands[btn.command](view);
+    } else if (btn.insert) {
+      insertAtCursor(view, btn.insert);
+    }
+  }, [view]);
+
   if (!notePath) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -169,56 +396,67 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
 
   return (
     <div className="h-full flex flex-col">
-      {/* Editor toolbar */}
-      <div className="h-auto bg-gray-50 border-b border-gray-200 flex items-center px-3 gap-2 shrink-0 flex-wrap">
+      {/* Markdown toolbar */}
+      <div className="h-9 bg-gray-50 border-b border-gray-200 flex items-center px-2 gap-0.5 shrink-0">
+        {MD_BUTTONS.map((btn) => (
+          <button
+            key={btn.title}
+            onClick={() => handleMdAction(btn)}
+            title={btn.title}
+            className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded transition-colors"
+          >
+            {btn.label}
+          </button>
+        ))}
+
+        <div className="w-px h-5 bg-gray-300 mx-1" />
+
         <button
           onClick={() => setPreviewMode(!previewMode)}
-          className={`px-3 py-1 text-xs rounded transition-colors ${
-            previewMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+          title={`Preview (Ctrl+P)`}
+          className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
+            previewMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-200'
           }`}
         >
           Preview
         </button>
         <button
           onClick={() => setSplitMode(!splitMode)}
-          className={`px-3 py-1 text-xs rounded transition-colors ${
-            splitMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+          title={`Split (Ctrl+B)`}
+          className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
+            splitMode ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-200'
           }`}
         >
           Split
         </button>
+      </div>
 
-        {/* Tag toolbar */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs text-gray-400">{'\u{1F3F7}'}</span>
-          {noteTags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700"
+      {/* Tag bar */}
+      <div className="h-8 bg-gray-50 border-b border-gray-200 flex items-center px-3 gap-1.5 shrink-0">
+        <span className="text-xs text-gray-400">{'\u{1F3F7}'}</span>
+        {noteTags.map((tag) => (
+          <span
+            key={tag}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700"
+          >
+            <span>{tag}</span>
+            <button
+              onClick={() => handleRemoveTag(tag)}
+              className="text-blue-400 hover:text-blue-700 transition-colors"
             >
-              <span>{tag}</span>
-              <button
-                onClick={() => handleRemoveTag(tag)}
-                className="text-blue-400 hover:text-blue-700 transition-colors"
-              >
-                {'\u00D7'}
-              </button>
-            </span>
-          ))}
-          <input
-            type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-            placeholder="+ Add tag"
-            className="w-20 px-1.5 py-0.5 text-xs border border-gray-200 rounded-full bg-white text-gray-700 placeholder-gray-400 outline-none focus:border-blue-400"
-          />
-        </div>
-
+              {'\u00D7'}
+            </button>
+          </span>
+        ))}
+        <input
+          type="text"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          onKeyDown={handleTagKeyDown}
+          placeholder="+ Add tag"
+          className="w-20 px-1.5 py-0.5 text-xs border border-gray-200 rounded-full bg-white text-gray-700 placeholder-gray-400 outline-none focus:border-blue-400"
+        />
         <div className="flex-1" />
-        <span className="text-xs text-gray-400 truncate max-w-xs">
-          {notePath.split('/').pop()}
-        </span>
         <button
           onClick={handleSave}
           className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
