@@ -111,9 +111,9 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
         </div>
 
         {/* Filter toggle */}
-        <button
+        <div
           onClick={() => setShowFilters(!showFilters)}
-          class={`mt-2 flex items-center gap-1.5 text-xs text-dark-secondary hover:text-dark-text transition-colors w-full ${
+          class={`mt-2 flex items-center gap-1.5 text-xs text-dark-secondary hover:text-dark-text transition-colors cursor-pointer w-full ${
             hasActiveFilters ? 'text-accent-dark' : ''
           }`}
         >
@@ -140,7 +140,7 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
               Clear
             </button>
           )}
-        </button>
+        </div>
 
         {/* Filter panels */}
         {showFilters && (
