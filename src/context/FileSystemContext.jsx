@@ -15,6 +15,7 @@ export function FileSystemProvider({ children }) {
   const [directoryHandle, setDirectoryHandle] = useState(null);
   const [handleCache, setHandleCache] = useState(new Map());
   const [toasts, setToasts] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [lastFolderName, setLastFolderName] = useState(() => {
     try {
       return localStorage.getItem(LAST_FOLDER_KEY) || '';
@@ -33,6 +34,10 @@ export function FileSystemProvider({ children }) {
 
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const triggerRefresh = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
   }, []);
 
   const getHandle = useCallback(async (parent, name) => {
@@ -107,12 +112,13 @@ export function FileSystemProvider({ children }) {
       const writable = await fileHandle.createWritable();
       await writable.write(content);
       await writable.close();
+      triggerRefresh();
       return true;
     } catch (err) {
       addToast(`Failed to write "${path}": ${err.message}`, 'error');
       return false;
     }
-  }, [directoryHandle, addToast]);
+  }, [directoryHandle, addToast, triggerRefresh]);
 
   const createDirectory = useCallback(async (path) => {
     if (!directoryHandle) return false;
@@ -127,12 +133,13 @@ export function FileSystemProvider({ children }) {
           current = await current.getDirectoryHandle(part);
         }
       }
+      triggerRefresh();
       return true;
     } catch (err) {
       addToast(`Failed to create directory "${path}": ${err.message}`, 'error');
       return false;
     }
-  }, [directoryHandle, addToast]);
+  }, [directoryHandle, addToast, triggerRefresh]);
 
   const listDirectory = useCallback(async (path) => {
     if (!directoryHandle) return [];
@@ -199,18 +206,20 @@ export function FileSystemProvider({ children }) {
       }
 
       await current.removeEntry(parts[parts.length - 1]);
+      triggerRefresh();
       return true;
     } catch (err) {
       addToast(`Failed to delete "${path}": ${err.message}`, 'error');
       return false;
     }
-  }, [directoryHandle, addToast]);
+  }, [directoryHandle, addToast, triggerRefresh]);
 
   const getValue = useCallback(() => {
     return {
       directoryHandle,
       toasts,
       lastFolderName,
+      refreshKey,
       openDirectory,
       readFile,
       writeFile,
@@ -219,7 +228,7 @@ export function FileSystemProvider({ children }) {
       listDirectory,
       getFileHandle,
     };
-  }, [directoryHandle, toasts, lastFolderName, openDirectory, readFile, writeFile, createDirectory, deleteFile, listDirectory, getFileHandle]);
+  }, [directoryHandle, toasts, lastFolderName, refreshKey, openDirectory, readFile, writeFile, createDirectory, deleteFile, listDirectory, getFileHandle]);
 
   return (
     <FileSystemContext.Provider value={getValue()}>

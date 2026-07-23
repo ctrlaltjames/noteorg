@@ -3,7 +3,7 @@ import { useFileSystem } from '../../context/FileSystemContext';
 import FolderNode from './FolderNode';
 
 export default function FolderTree({ selectedPath, onSelect }) {
-  const { listDirectory } = useFileSystem();
+  const { listDirectory, refreshKey } = useFileSystem();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +21,7 @@ export default function FolderTree({ selectedPath, onSelect }) {
 
   useEffect(() => {
     loadRoot();
-  }, [loadRoot]);
+  }, [loadRoot, refreshKey]);
 
   const handleSelect = useCallback(
     (item) => {
