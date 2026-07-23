@@ -90,7 +90,7 @@ export default function FolderNode({ item, depth, onSelect, onContext, onRename,
         style={{ left: menuPos.x, top: menuPos.y }}
       >
         <button
-          onClick={handleRename}
+          onClick={(e) => { e.stopPropagation(); handleRename(); }}
           className="w-full px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -343,17 +343,18 @@ export default function NoteEditor({ notePath, content, onChange, onSave, onDele
   }, [notePath]);
 
   useEffect(() => {
-    if (!view) return;
+    const currentView = viewRef.current;
+    if (!currentView) return;
     if (content === lastSyncedContentRef.current) return;
     const doc = content || '';
-    const current = view.state.doc.toString();
+    const current = currentView.state.doc.toString();
     if (current !== doc) {
-      view.dispatch({
+      currentView.dispatch({
         changes: { from: 0, to: current.length, insert: doc },
       });
       lastSyncedContentRef.current = doc;
     }
-  }, [content, view]);
+  }, [content]);
 
   const handleSave = useCallback(() => {
     if (onSave) onSave();
