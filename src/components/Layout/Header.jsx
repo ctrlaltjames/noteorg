@@ -6,15 +6,15 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header class="h-12 bg-dark-header border-b border-dark-border flex items-center justify-between px-4 shrink-0">
+    <header class="h-12 theme-bg-header border-b theme-border flex items-center justify-between px-4 shrink-0">
       <div class="flex items-center gap-2">
-        <span class="text-lg font-bold text-dark-text">NoteOrg</span>
+        <span class="text-lg font-bold theme-text">NoteOrg</span>
       </div>
 
       <div class="flex items-center gap-3">
         <button
           onClick={toggleTheme}
-          class="p-1.5 rounded text-dark-secondary hover:text-dark-text hover:bg-dark-border/50 transition-colors"
+          class="p-1.5 rounded theme-text-secondary hover:theme-text hover:bg-[var(--border-color)]/20 transition-colors"
           title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
           {theme === 'dark' ? (

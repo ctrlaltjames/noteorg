@@ -37,9 +37,9 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
   const hasActiveFilters = activeTag || activeFolder || searchQuery;
 
   return (
-    <div class="w-72 bg-dark-panel border-r border-dark-border flex flex-col shrink-0">
+    <div class="w-72 theme-bg-panel border-r theme-border flex flex-col shrink-0">
       {/* Search */}
-      <div class="p-3 border-b border-dark-border">
+      <div class="p-3 border-b theme-border">
         <div class="flex gap-2">
           <div class="relative flex-1">
             <svg

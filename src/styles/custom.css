@@ -30,6 +30,14 @@
   --scrollbar-thumb: #d0d7de;
 }
 
+/* Theme-aware utilities for sidebar and nav */
+.theme-bg-panel { background-color: var(--bg-panel); }
+.theme-bg-header { background-color: var(--bg-header); }
+.theme-border { border-color: var(--border-color); }
+.theme-text { color: var(--text-primary); }
+.theme-text-secondary { color: var(--text-secondary); }
+.theme-bg-primary { background-color: var(--bg-primary); }
+
 * {
   margin: 0;
   padding: 0;
