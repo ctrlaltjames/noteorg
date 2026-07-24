@@ -32,6 +32,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const redoStackRef = useRef([]);
   const isNote = artifact.type === 'note';
   const MAX_UNDO = 100;
+  let skipUndoPush = false;
 
   const pushUndo = (text, cursorPos) => {
     undoStackRef.current.push({ text, cursorPos: cursorPos ?? text.length });
@@ -247,12 +248,14 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const applyFormatting = (textarea, newText, newStart, newEnd) => {
     // Push current value to undo stack before formatting
     pushUndo(textarea.value, textarea.selectionStart);
+    skipUndoPush = true;
     textarea.value = newText;
     textarea.selectionStart = newStart;
     textarea.selectionEnd = newEnd;
     // Sync preview pane
     setEditContent(newText);
     setIsDirty(true);
+    requestAnimationFrame(() => { skipUndoPush = false; });
   };
 
   const handleKeyDown = (e) => {
@@ -484,7 +487,9 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                       defaultValue={editContent}
                       onInput={(e) => {
                         // Push old value to undo stack (editContent is still old at this point)
-                        pushUndo(editContent, textareaRef.current.selectionStart);
+                        if (!skipUndoPush) {
+                          pushUndo(editContent, textareaRef.current.selectionStart);
+                        }
                         setEditContent(e.target.value);
                         setIsDirty(true);
                       }}
@@ -554,7 +559,9 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     ref={textareaRef}
                     defaultValue={editContent}
                     onInput={(e) => {
-                      pushUndo(editContent, textareaRef.current.selectionStart);
+                      if (!skipUndoPush) {
+                        pushUndo(editContent, textareaRef.current.selectionStart);
+                      }
                       setEditContent(e.target.value);
                       setIsDirty(true);
                     }}
