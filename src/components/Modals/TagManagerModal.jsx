@@ -73,7 +73,7 @@ export default function TagManagerModal({ onClose }) {
   };
 
   return (
-    <div class="theme-bg-panel border theme-border rounded-lg shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+    <div class="theme-bg-panel border theme-border rounded-lg shadow-xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
       {/* Header */}
       <div class="flex items-center justify-between p-4 border-b theme-border">
         <h2 class="text-lg font-semibold theme-text">Manage Tags</h2>
@@ -108,34 +108,36 @@ export default function TagManagerModal({ onClose }) {
                     title="Change color"
                   />
                   {colorPickerId === tag.id && (
-                    <div class="absolute left-0 top-full mt-1 z-20 p-2 rounded-lg border theme-border theme-bg-panel shadow-xl" onClick={(e) => e.stopPropagation()}>
-                      <div class="grid grid-cols-4 gap-1 mb-2">
-                        {TAG_COLORS.map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => handleColorSelect(tag.id, color)}
-                            class="w-8 h-8 rounded-full border-2 transition-transform hover:scale-110"
-                            style={{
-                              backgroundColor: color,
-                              borderColor: tag.color === color ? 'var(--text-primary)' : 'transparent',
-                            }}
-                            title={color}
+                    <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none" onClick={() => setColorPickerId(null)}>
+                      <div class="p-4 rounded-xl border theme-border theme-bg-panel shadow-2xl pointer-events-auto" style={{ minWidth: '200px' }} onClick={(e) => e.stopPropagation()}>
+                        <div class="grid grid-cols-3 gap-3">
+                          {TAG_COLORS.map((color) => (
+                            <button
+                              key={color}
+                              onClick={() => handleColorSelect(tag.id, color)}
+                              class="w-10 h-10 rounded-full border-2 transition-transform hover:scale-110 mx-auto"
+                              style={{
+                                backgroundColor: color,
+                                borderColor: tag.color === color ? 'var(--text-primary)' : 'transparent',
+                              }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
+                        <div class="flex items-center justify-center gap-2 mt-3">
+                          <input
+                            type="color"
+                            value={customColor || tag.color}
+                            onChange={(e) => setCustomColor(e.target.value)}
+                            class="w-10 h-10 rounded cursor-pointer border-0 p-0"
                           />
-                        ))}
-                      </div>
-                      <div class="flex gap-1">
-                        <input
-                          type="color"
-                          value={customColor || tag.color}
-                          onChange={(e) => setCustomColor(e.target.value)}
-                          class="w-8 h-8 rounded cursor-pointer border-0 p-0"
-                        />
-                        <button
-                          onClick={() => handleCustomColor(tag.id)}
-                          class="text-xs bg-[var(--btn-primary)] text-white px-2 py-1 rounded"
-                        >
-                          Set
-                        </button>
+                          <button
+                            onClick={() => handleCustomColor(tag.id)}
+                            class="text-xs bg-[var(--btn-primary)] text-white px-3 py-1.5 rounded"
+                          >
+                            Set
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -242,7 +244,7 @@ export default function TagManagerModal({ onClose }) {
           <input
             type="text"
             value={newTagName}
-            onChange={(e) => setNewTagName(e.target.value)}
+            onInput={(e) => setNewTagName(e.target.value)}
             placeholder="New tag name"
             class="flex-1"
             onKeyDown={(e) => e.key === 'Enter' && handleCreateTag()}

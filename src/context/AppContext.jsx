@@ -86,7 +86,7 @@ export function AppProvider({ children, user }) {
 
         const { data: tagDetails } = await supabase
           .from('tags')
-          .select('id, name')
+          .select('id, name, color')
           .in('id', tagData ? tagData.map((t) => t.tag_id) : []);
 
         const tagMap = {};
