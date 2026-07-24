@@ -23,11 +23,21 @@ export default function InlineMenu({ anchor, mode, text, selectionStart, selecti
     };
   };
 
+  const trimSelection = (txt, s, e) => {
+    let start = s, end = e;
+    while (start < end && /\s/.test(txt[start])) start++;
+    while (end > start && /\s/.test(txt[end - 1])) end--;
+    return { start, end };
+  };
+
   const applyFormat = (type) => {
     const isSelection = selectionStart !== selectionEnd;
-    const { start, end } = isSelection
-      ? { start: selectionStart, end: selectionEnd }
-      : getLineRange(selectionStart);
+    let start, end;
+    if (isSelection) {
+      ({ start, end } = trimSelection(text, selectionStart, selectionEnd));
+    } else {
+      ({ start, end } = getLineRange(selectionStart));
+    }
 
     const lineText = text.substring(start, end);
     let newText, newStart, newEnd;

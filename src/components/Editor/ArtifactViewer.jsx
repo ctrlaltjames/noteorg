@@ -223,11 +223,18 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
 
+      const trimSel = (s, e) => {
+        let st = s, en = e;
+        while (st < en && /\s/.test(text[st])) st++;
+        while (en > st && /\s/.test(text[en - 1])) en--;
+        return { s: st, e: en };
+      };
+
       switch (e.key.toLowerCase()) {
         case 'b': {
           e.preventDefault();
           const isSel = start !== end;
-          const { s: bs, e: be } = isSel ? { s: start, e: end } : getLineRange(text, start);
+          const { s: bs, e: be } = isSel ? trimSel(start, end) : getLineRange(text, start);
           const lt = text.substring(bs, be);
           const nt = text.substring(0, bs) + '**' + lt + '**' + text.substring(be);
           setEditContent(nt);
@@ -240,7 +247,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
         case 'i': {
           e.preventDefault();
           const isSel = start !== end;
-          const { s: its, e: ite } = isSel ? { s: start, e: end } : getLineRange(text, start);
+          const { s: its, e: ite } = isSel ? trimSel(start, end) : getLineRange(text, start);
           const lt = text.substring(its, ite);
           const nt = text.substring(0, its) + '*' + lt + '*' + text.substring(ite);
           setEditContent(nt);
@@ -274,7 +281,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
         case 'k': {
           e.preventDefault();
           const isSel = start !== end;
-          const { s: ls, e: le } = isSel ? { s: start, e: end } : getLineRange(text, start);
+          const { s: ls, e: le } = isSel ? trimSel(start, end) : getLineRange(text, start);
           const lt = text.substring(ls, le);
           const nt = text.substring(0, ls) + '[' + lt + ']()' + text.substring(le);
           setEditContent(nt);
@@ -287,7 +294,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
         case '`': {
           e.preventDefault();
           const isSel = start !== end;
-          const { s: cs, e: ce } = isSel ? { s: start, e: end } : getLineRange(text, start);
+          const { s: cs, e: ce } = isSel ? trimSel(start, end) : getLineRange(text, start);
           const lt = text.substring(cs, ce);
           const nt = text.substring(0, cs) + '`' + lt + '`' + text.substring(ce);
           setEditContent(nt);
