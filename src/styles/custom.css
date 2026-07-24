@@ -11,6 +11,7 @@
   --btn-primary: #238636;
   --btn-primary-hover: #2ea043;
   --btn-danger: #f85149;
+  --btn-success: #238636;
   --scrollbar-thumb: #30363d;
 }
 
@@ -27,6 +28,7 @@
   --btn-primary: #1a7f37;
   --btn-primary-hover: #2da44e;
   --btn-danger: #cf222e;
+  --btn-success: #1a7f37;
   --scrollbar-thumb: #d0d7de;
 }
 
@@ -40,9 +42,14 @@
 .theme-text-accent { color: var(--text-accent); }
 .theme-text-danger { color: var(--btn-danger); }
 .theme-bg-border { background-color: var(--border-color); }
-.theme-bg-primary { background-color: var(--btn-primary); }
-.theme-text-accent { color: var(--text-accent); }
 .theme-bg-accent { background-color: var(--text-accent); }
+.theme-bg-accent-light { background-color: var(--text-accent); }
+.theme-bg-primary-dark { background-color: var(--btn-primary); }
+.theme-text-primary { color: var(--btn-primary); }
+.theme-text-danger-hover { color: var(--btn-danger); }
+.theme-text-success { color: var(--btn-success); }
+.theme-bg-danger-light { background-color: var(--btn-danger); }
+.theme-bg-success-light { background-color: var(--btn-success); }
 
 * {
   margin: 0;
@@ -97,6 +104,11 @@ input, textarea, select {
 
 input:focus, textarea:focus, select:focus {
   border-color: var(--text-accent);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
 button {
@@ -344,4 +356,41 @@ a:hover {
 .code-preview {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+}
+
+/* Line number gutter */
+.line-numbers-gutter {
+  color: var(--text-secondary);
+  --gutter-active-bg: rgba(48, 54, 61, 0.5);
+}
+
+.light .line-numbers-gutter {
+  --gutter-active-bg: rgba(158, 163, 168, 0.3);
+}
+
+.line-number {
+  color: var(--text-secondary);
+  opacity: 0.45;
+}
+
+.light .line-number {
+  opacity: 0.6;
+}
+
+.line-numbers-active {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+  font-weight: 600;
+}
+
+
+
+/* Editor/preview pane borders */
+.editor-pane-border {
+  border-color: var(--border-color);
+}
+
+/* Gutter border */
+.gutter-border {
+  border-color: var(--border-color);
 }

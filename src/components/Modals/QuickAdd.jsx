@@ -103,13 +103,13 @@ export default function QuickAddModal({ onClose }) {
   };
 
   return (
-    <div class="bg-dark-panel border border-dark-border rounded-lg shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+    <div class="theme-bg-panel border theme-border rounded-lg shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
       {/* Header */}
-      <div class="flex items-center justify-between p-4 border-b border-dark-border">
-        <h2 class="text-lg font-semibold text-dark-text">Add New Artifact</h2>
+      <div class="flex items-center justify-between p-4 border-b theme-border">
+        <h2 class="text-lg font-semibold theme-text">Add New Artifact</h2>
         <button
           onClick={onClose}
-          class="text-dark-secondary hover:text-dark-text transition-colors"
+          class="theme-text-secondary hover:theme-text transition-colors"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -125,8 +125,8 @@ export default function QuickAddModal({ onClose }) {
             onClick={() => setType('note')}
             class={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
               type === 'note'
-                ? 'bg-accent-dark/20 text-accent-dark border border-accent-dark/30'
-                : 'bg-dark-border/30 text-dark-secondary hover:bg-dark-border/50'
+                ? 'bg-[var(--text-accent)]/20 text-[var(--text-accent)] border border-[var(--text-accent)]/30'
+                : 'bg-[var(--border-color)]/30 theme-text-secondary hover:bg-[var(--border-color)]/50'
             }`}
           >
             <span class="flex items-center justify-center gap-2">
@@ -141,8 +141,8 @@ export default function QuickAddModal({ onClose }) {
             onClick={() => setType('image')}
             class={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
               type === 'image'
-                ? 'bg-accent-dark/20 text-accent-dark border border-accent-dark/30'
-                : 'bg-dark-border/30 text-dark-secondary hover:bg-dark-border/50'
+                ? 'bg-[var(--text-accent)]/20 text-[var(--text-accent)] border border-[var(--text-accent)]/30'
+                : 'bg-[var(--border-color)]/30 theme-text-secondary hover:bg-[var(--border-color)]/50'
             }`}
           >
             <span class="flex items-center justify-center gap-2">
@@ -158,7 +158,7 @@ export default function QuickAddModal({ onClose }) {
 
         {/* Title */}
         <div>
-          <label class="block text-sm font-medium text-dark-text mb-1">Title</label>
+          <label class="block text-sm font-medium theme-text mb-1">Title</label>
           <input
             type="text"
             value={title}
@@ -171,7 +171,7 @@ export default function QuickAddModal({ onClose }) {
         {/* Note content */}
         {type === 'note' && (
           <div>
-            <label class="block text-sm font-medium text-dark-text mb-1">Content</label>
+            <label class="block text-sm font-medium theme-text mb-1">Content</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -185,15 +185,15 @@ export default function QuickAddModal({ onClose }) {
         {/* Image upload */}
         {type === 'image' && (
           <div>
-            <label class="block text-sm font-medium text-dark-text mb-1">Image</label>
+            <label class="block text-sm font-medium theme-text mb-1">Image</label>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              class="w-full text-sm text-dark-secondary"
+              class="w-full text-sm theme-text-secondary"
             />
             {imageFile && (
-              <p class="text-xs text-dark-secondary mt-1">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</p>
+              <p class="text-xs theme-text-secondary mt-1">{imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)</p>
             )}
           </div>
         )}
@@ -201,10 +201,10 @@ export default function QuickAddModal({ onClose }) {
         {/* Folder selector */}
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="text-sm font-medium text-dark-text">Folder</label>
+            <label class="text-sm font-medium theme-text">Folder</label>
             <button
               onClick={() => setShowNewFolder(!showNewFolder)}
-              class="text-xs text-accent-dark hover:underline"
+              class="text-xs text-[var(--text-accent)] hover:underline"
             >
               {showNewFolder ? 'Cancel' : '+ New folder'}
             </button>
@@ -221,7 +221,7 @@ export default function QuickAddModal({ onClose }) {
               />
               <button
                 onClick={handleCreateFolder}
-                class="bg-primary-dark text-white px-3 rounded text-sm"
+                class="bg-[var(--btn-primary)] text-white px-3 rounded text-sm"
               >
                 Add
               </button>
@@ -243,10 +243,10 @@ export default function QuickAddModal({ onClose }) {
         {/* Tag selector */}
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="text-sm font-medium text-dark-text">Tags</label>
+            <label class="text-sm font-medium theme-text">Tags</label>
             <button
               onClick={() => setShowNewTag(!showNewTag)}
-              class="text-xs text-accent-dark hover:underline"
+              class="text-xs text-[var(--text-accent)] hover:underline"
             >
               {showNewTag ? 'Cancel' : '+ New tag'}
             </button>
@@ -263,7 +263,7 @@ export default function QuickAddModal({ onClose }) {
               />
               <button
                 onClick={handleCreateTag}
-                class="bg-primary-dark text-white px-3 rounded text-sm"
+                class="bg-[var(--btn-primary)] text-white px-3 rounded text-sm"
               >
                 Add
               </button>
@@ -287,10 +287,10 @@ export default function QuickAddModal({ onClose }) {
               {selectedTags.map((tag) => (
                 <span
                   key={tag}
-                  class="flex items-center gap-1 text-xs bg-accent-dark/20 text-accent-dark px-2 py-1 rounded"
+                  class="flex items-center gap-1 text-xs bg-[var(--text-accent)]/20 text-[var(--text-accent)] px-2 py-1 rounded"
                 >
                   {tag}
-                  <button onClick={() => handleRemoveTag(tag)} class="hover:text-danger-dark">&times;</button>
+                  <button onClick={() => handleRemoveTag(tag)} class="hover:text-[var(--btn-danger)]">&times;</button>
                 </span>
               ))}
             </div>
@@ -306,7 +306,7 @@ export default function QuickAddModal({ onClose }) {
                   <button
                     key={tag.id}
                     onClick={() => handleAddTag(tag.name)}
-                    class="text-xs bg-dark-border/30 text-dark-secondary px-2 py-1 rounded hover:bg-dark-border/50"
+                    class="text-xs bg-[var(--border-color)]/30 theme-text-secondary px-2 py-1 rounded hover:bg-[var(--border-color)]/50"
                   >
                     {tag.name}
                   </button>
@@ -317,7 +317,7 @@ export default function QuickAddModal({ onClose }) {
 
         {/* Error */}
         {error && (
-          <div class="bg-danger-dark/10 border border-danger-dark/30 text-danger-dark rounded p-2 text-sm">
+          <div class="bg-[var(--btn-danger)]/10 border border-[var(--btn-danger)]/30 text-[var(--btn-danger)] rounded p-2 text-sm">
             {error}
           </div>
         )}
@@ -326,7 +326,7 @@ export default function QuickAddModal({ onClose }) {
         <button
           onClick={handleSubmit}
           disabled={saving || !title.trim() || (type === 'image' && !imageFile)}
-          class="w-full bg-primary-dark hover:bg-primary-dark/80 text-white font-medium py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full bg-[var(--btn-primary)] hover:bg-[var(--btn-primary)]/80 text-white font-medium py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Creating...' : `Create ${type === 'note' ? 'Note' : 'Image'}`}
         </button>

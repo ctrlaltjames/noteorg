@@ -32,7 +32,7 @@ export function renderMarkdown(markdown) {
       ? Prism.highlight(text, Prism.languages[language], language)
       : text;
 
-    return `<pre class="bg-dark-bg border border-dark-border rounded p-3 overflow-auto my-2"><code class="${
+    return `<pre class="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded p-3 overflow-auto my-2"><code class="${
       language || ''
     } language-${language || 'text'} text-sm" ${
       validLang ? `data-language="${language}"` : ''
@@ -47,7 +47,7 @@ export function renderMarkdown(markdown) {
       ? Prism.highlight(text, Prism.languages[language], language)
       : text;
 
-    return `<pre class="bg-dark-bg border border-dark-border rounded p-3 overflow-auto my-2"><code class="${
+    return `<pre class="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded p-3 overflow-auto my-2"><code class="${
       language || ''
     } language-${language || 'text'} text-sm">${highlighted}</code></pre>`;
   };

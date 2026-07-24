@@ -10,8 +10,8 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div class="min-h-screen flex items-center justify-center bg-dark-bg">
-        <div class="text-dark-secondary">Loading...</div>
+      <div class="min-h-screen flex items-center justify-center theme-bg-primary">
+        <div class="theme-text-secondary">Loading...</div>
       </div>
     );
   }

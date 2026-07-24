@@ -55,11 +55,21 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     }
   };
 
-  const renderLineNumbers = () => {
-    return getLineNumbers(editContent).map((line, i) => {
+  const lineNumbers = getLineNumbers(editContent);
+
+  const renderLineNumbersJsx = () => {
+    return lineNumbers.map((line, i) => {
       const isCurrent = i + 1 === cursorLine;
-      return `<div class="flex items-center justify-end h-[1.625rem] px-2 ${isCurrent ? 'text-dark-text/80 font-semibold bg-dark-border/20' : ''}">${line}</div>`;
-    }).join('');
+      return (
+        <div
+          key={line}
+          class={`flex items-center justify-end h-[1.625rem] px-2 ${isCurrent ? 'line-numbers-active' : 'line-number'}`}
+          style={isCurrent ? { backgroundColor: 'var(--gutter-active-bg)' } : undefined}
+        >
+          {line}
+        </div>
+      );
+    });
   };
 
   const handleSave = async () => {
@@ -104,23 +114,23 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     return (
       <div class="h-full flex flex-col" onKeyDown={handleKeyDown}>
         {/* Edit header */}
-        <div class="flex items-center gap-2 p-3 border-b border-dark-border shrink-0">
+        <div class="flex items-center gap-2 p-3 border-b theme-border shrink-0">
           <button
             onClick={onCancelEdit}
-            class="text-dark-secondary hover:text-dark-text transition-colors p-1.5 rounded"
+            class="theme-text-secondary hover:theme-text transition-colors p-1.5 rounded"
             title="Back"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <span class={`text-xs px-2 py-0.5 rounded capitalize ${isNote ? 'bg-accent-dark/20 text-accent-dark' : 'bg-primary-dark/20 text-primary-dark'}`}>
+          <span class={`text-xs px-2 py-0.5 rounded capitalize ${isNote ? 'bg-[var(--text-accent)]/20 text-[var(--text-accent)]' : 'bg-[var(--btn-primary)]/20 text-[var(--btn-primary)]'}`}>
             {artifact.type}
           </span>
-          <div class="w-px h-5 bg-dark-border" />
+          <div class="w-px h-5 bg-[var(--border-color)]" />
           <button
             onClick={() => setShowSplit(!showSplit)}
-            class={`p-1.5 rounded transition-colors ${showSplit ? 'text-dark-text' : 'text-dark-secondary'} hover:bg-white/5 hover:text-yellow-300`}
+            class={`p-1.5 rounded transition-colors ${showSplit ? 'theme-text' : 'theme-text-secondary'} hover:bg-white/5 hover:text-yellow-300`}
             title="Toggle split view"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -131,7 +141,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           <button
             onClick={handleSave}
             disabled={saving || !editTitle.trim()}
-            class="text-dark-secondary hover:text-primary-dark disabled:opacity-50 disabled:cursor-not-allowed p-1.5 rounded transition-colors hover:bg-white/5"
+            class="theme-text-secondary hover:text-[var(--btn-primary)] disabled:opacity-50 disabled:cursor-not-allowed p-1.5 rounded transition-colors hover:bg-white/5"
             title="Save (Ctrl+S)"
           >
             {saving ? (
@@ -148,7 +158,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           </button>
           <button
             onClick={handleDelete}
-            class="text-dark-secondary hover:text-danger-dark p-1.5 rounded transition-colors hover:bg-white/5"
+            class="theme-text-secondary hover:text-[var(--btn-danger)] p-1.5 rounded transition-colors hover:bg-white/5"
             title="Delete"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -166,7 +176,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               placeholder="Artifact title..."
-              class="w-full text-xl font-bold bg-transparent border-none outline-none text-dark-text"
+              class="w-full text-xl font-bold bg-transparent border-none outline-none theme-text"
             />
           </div>
 
@@ -176,21 +186,24 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
               <div class="h-full flex gap-3">
                 {/* Editor pane */}
                 <div class="flex-1 min-w-0 flex flex-col">
-                  <div class="text-xs text-dark-secondary/60 mb-1.5 font-medium uppercase tracking-wider">Edit</div>
-                  <div class="flex-1 min-h-0 relative border border-dark-border/30 rounded">
+                  <div class="text-xs text-[var(--text-secondary)]/60 mb-1.5 font-medium uppercase tracking-wider">Edit</div>
+                  <div class="flex-1 min-h-0 relative border editor-pane-border rounded">
                     <div
                       ref={gutterRef}
-                      class="absolute left-0 top-0 bottom-0 w-12 bg-dark-card text-dark-secondary/40 text-sm font-mono text-right select-none overflow-hidden py-3 border-r border-dark-border/20 z-10"
-                    />
+                      class="absolute left-0 top-0 bottom-0 w-12 theme-bg-panel line-numbers-gutter text-sm font-mono text-right select-none overflow-hidden py-3 border-r gutter-border z-10"
+                    >
+                      {renderLineNumbersJsx()}
+                    </div>
                     <textarea
                       ref={textareaRef}
                       value={editContent}
                       onInput={(e) => setEditContent(e.target.value)}
+                      onClick={handleCursorMove}
                       onKeyUp={handleCursorMove}
                       onSelect={handleCursorMove}
                       onScroll={handleScroll}
                       placeholder="Start writing..."
-                      class="absolute left-12 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono p-3"
+                      class="absolute left-12 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm theme-text font-mono p-3"
                       spellCheck
                       style={{ lineHeight: '1.625rem' }}
                     />
@@ -198,25 +211,27 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                 </div>
                 {/* Preview pane */}
                 <div class="flex-1 min-w-0 flex flex-col">
-                  <div class="text-xs text-dark-secondary/60 mb-1.5 font-medium uppercase tracking-wider">Preview</div>
-                  <div class="flex-1 min-h-0 border border-dark-border/30 rounded overflow-y-auto p-4 bg-dark-card">
+                  <div class="text-xs text-[var(--text-secondary)]/60 mb-1.5 font-medium uppercase tracking-wider">Preview</div>
+                  <div class="flex-1 min-h-0 border editor-pane-border rounded overflow-y-auto p-4 theme-bg-panel">
                     <div
-                      class="prose prose-sm max-w-none text-dark-text"
+                      class="prose prose-sm max-w-none theme-text"
                       dangerouslySetInnerHTML={{ __html: renderMarkdown(editContent) }}
                     />
                     {!editContent && (
-                      <p class="text-dark-secondary/40 text-sm italic">Nothing to preview yet...</p>
+                      <p class="text-[var(--text-secondary)]/40 text-sm italic">Nothing to preview yet...</p>
                     )}
                   </div>
                 </div>
               </div>
             ) : (
               <div class="h-full flex flex-col">
-                <div class="flex-1 min-h-0 relative border border-dark-border/30 rounded">
-                  <div
-                    ref={gutterRef}
-                    class="absolute left-0 top-0 bottom-0 w-12 bg-dark-card text-dark-secondary/40 text-sm font-mono text-right select-none overflow-hidden py-3 border-r border-dark-border/20 z-10"
-                  />
+                <div class="flex-1 min-h-0 relative border editor-pane-border rounded">
+                    <div
+                      ref={gutterRef}
+                      class="absolute left-0 top-0 bottom-0 w-12 theme-bg-panel line-numbers-gutter text-sm font-mono text-right select-none overflow-hidden py-3 border-r gutter-border z-10"
+                    >
+                      {renderLineNumbersJsx()}
+                    </div>
                   <textarea
                     ref={textareaRef}
                     value={editContent}
@@ -225,7 +240,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     onSelect={handleCursorMove}
                     onScroll={handleScroll}
                     placeholder="Start writing..."
-                    class="absolute left-12 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm text-dark-text font-mono p-3"
+                    class="absolute left-12 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm theme-text font-mono p-3"
                     spellCheck
                     style={{ lineHeight: '1.625rem' }}
                   />
@@ -244,30 +259,30 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   return (
     <div class="h-full flex flex-col">
       {/* View header */}
-      <div class="flex items-center gap-2 p-3 border-b border-dark-border shrink-0">
+      <div class="flex items-center gap-2 p-3 border-b theme-border shrink-0">
         <button
           onClick={onClose}
-          class="text-dark-secondary hover:text-dark-text transition-colors p-1.5 rounded"
+          class="theme-text-secondary hover:theme-text transition-colors p-1.5 rounded"
           title="Back to list"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <span class={`text-xs px-2 py-0.5 rounded capitalize ${isNote ? 'bg-accent-dark/20 text-accent-dark' : 'bg-primary-dark/20 text-primary-dark'}`}>
+        <span class={`text-xs px-2 py-0.5 rounded capitalize ${isNote ? 'bg-[var(--text-accent)]/20 text-[var(--text-accent)]' : 'bg-[var(--btn-primary)]/20 text-[var(--btn-primary)]'}`}>
           {artifact.type}
         </span>
       </div>
 
       {/* Content */}
       <div class="flex-1 overflow-y-auto p-6">
-        <h1 class="text-2xl font-bold text-dark-text mb-4">{artifact.title || 'Untitled'}</h1>
+        <h1 class="text-2xl font-bold theme-text mb-4">{artifact.title || 'Untitled'}</h1>
 
         {/* Tags */}
         {artifact.tagNames?.length > 0 && (
           <div class="flex flex-wrap gap-1.5 mb-4">
             {artifact.tagNames.map((tag) => (
-              <span key={tag} class="text-xs bg-dark-border/30 text-dark-secondary px-2 py-1 rounded">
+              <span key={tag} class="text-xs bg-[var(--border-color)]/30 theme-text-secondary px-2 py-1 rounded">
                 {tag}
               </span>
             ))}
@@ -277,7 +292,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
         {/* Note content */}
         {isNote ? (
           <div
-            class="prose prose-sm max-w-none text-dark-text"
+            class="prose prose-sm max-w-none theme-text"
             dangerouslySetInnerHTML={{ __html: renderMarkdown(artifact.content) }}
           />
         ) : (
@@ -293,7 +308,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
               }}
             />
             {metadata.width && metadata.height && (
-              <p class="text-xs text-dark-secondary mt-2">
+              <p class="text-xs theme-text-secondary mt-2">
                 {metadata.width} x {metadata.height}
               </p>
             )}
@@ -301,7 +316,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
         )}
 
         {/* Metadata */}
-        <div class="mt-6 pt-4 border-t border-dark-border text-xs text-dark-secondary">
+        <div class="mt-6 pt-4 border-t theme-border text-xs theme-text-secondary">
           <div class="flex items-center gap-4">
             <span>Created: {new Date(artifact.created_at).toLocaleString()}</span>
             <span>Updated: {new Date(artifact.updated_at).toLocaleString()}</span>

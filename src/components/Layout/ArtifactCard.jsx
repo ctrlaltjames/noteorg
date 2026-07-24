@@ -42,7 +42,7 @@ export default function ArtifactCard({ artifact, isSelected, onClick, onEdit, on
       </div>
       <div class="flex items-start gap-3">
         {/* Type icon */}
-        <div class={`mt-0.5 shrink-0 ${isNote ? 'text-accent-dark' : 'text-primary-dark'}`}>
+        <div class={`mt-0.5 shrink-0 ${isNote ? 'text-[var(--text-accent)]' : 'text-[var(--btn-primary)]'}`}>
           {isNote ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
