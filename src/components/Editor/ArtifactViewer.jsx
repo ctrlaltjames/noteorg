@@ -5,7 +5,7 @@ import { deleteImage } from '@utils/images';
 import { supabase } from '@lib/supabase';
 import InlineMenu from './InlineMenu';
 
-const LINE_HEIGHT = 26;
+const LINE_HEIGHT = 22.75; // 1.625rem * 14px root font-size
 const GUTTER_WIDTH = 48;
 const FORMAT_GUTTER_WIDTH = 32;
 const TOTAL_GUTTER_WIDTH = GUTTER_WIDTH + FORMAT_GUTTER_WIDTH;
@@ -383,7 +383,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     >
                       {renderLineNumbersJsx()}
                     </div>
-                    <div class="absolute left-12 top-0 bottom-0 w-8 format-gutter z-[5]">
+                    <div class="absolute left-12 top-0 bottom-0 w-8 format-gutter z-[100]">
                       {showInlineButton && charWidth > 0 && (
                         <div
                           class="absolute left-0 w-8 flex items-center justify-center"
@@ -452,7 +452,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     >
                       {renderLineNumbersJsx()}
                     </div>
-                    <div class="absolute left-12 top-0 bottom-0 w-8 format-gutter z-[5]">
+                    <div class="absolute left-12 top-0 bottom-0 w-8 format-gutter z-[100]">
                       {showInlineButton && charWidth > 0 && (
                         <div
                           class="absolute left-0 w-8 flex items-center justify-center"
