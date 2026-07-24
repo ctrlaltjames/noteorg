@@ -95,13 +95,20 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     const selection = selectionEnd - selectionStart;
 
     if (selection > 0) {
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount > 0) {
-        const rect = sel.getRangeAt(0).getBoundingClientRect();
-        setMenuAnchor({ x: rect.right + 8, y: rect.top });
-        setShowInlineMenu(true);
-        setShowInlineButton(false);
-      }
+      const textareaRect = textarea.getBoundingClientRect();
+      const startLine = getCurrentLine(textarea.value, selectionStart);
+      const startLineStart = textarea.value.lastIndexOf('\n', selectionStart - 1) + 1;
+      const startCharOffset = selectionStart - startLineStart;
+      const endLine = getCurrentLine(textarea.value, selectionEnd - 1);
+      const endLineStart = textarea.value.lastIndexOf('\n', selectionEnd - 1 - 1) + 1;
+      const endCharOffset = (selectionEnd - 1) - endLineStart;
+
+      const x = textareaRect.left + TOTAL_GUTTER_WIDTH + (endCharOffset + 1) * charWidth;
+      const y = textareaRect.top + (startLine - 1) * LINE_HEIGHT;
+
+      setMenuAnchor({ x: x + 8, y });
+      setShowInlineMenu(true);
+      setShowInlineButton(false);
     } else {
       const lineNum = getCurrentLine(textarea.value, selectionStart);
       setCursorLine(lineNum);
