@@ -136,9 +136,10 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   };
 
   const handleFormat = (newText, newStart, newEnd) => {
-    setEditContent(newText);
-    setIsDirty(true);
-    setFormatCursor({ start: newStart, end: newEnd });
+    const textarea = textareaRef.current;
+    if (textarea) {
+      applyFormatting(textarea, newText, newStart, newEnd);
+    }
   };
 
   const handleScroll = () => {
@@ -202,6 +203,13 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     }
   };
 
+  const applyFormatting = (textarea, newText, newStart, newEnd) => {
+    textarea.value = newText;
+    textarea.selectionStart = newStart;
+    textarea.selectionEnd = newEnd;
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
@@ -237,9 +245,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           const { s: bs, e: be } = isSel ? trimSel(start, end) : getLineRange(text, start);
           const lt = text.substring(bs, be);
           const nt = text.substring(0, bs) + '**' + lt + '**' + text.substring(be);
-          setEditContent(nt);
-          setIsDirty(true);
-          setFormatCursor({ start: bs + 2, end: be + 2 });
+          applyFormatting(textarea, nt, bs + 2, be + 2);
           setShowInlineMenu(false);
           setShowInlineButton(true);
           break;
@@ -250,9 +256,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           const { s: its, e: ite } = isSel ? trimSel(start, end) : getLineRange(text, start);
           const lt = text.substring(its, ite);
           const nt = text.substring(0, its) + '*' + lt + '*' + text.substring(ite);
-          setEditContent(nt);
-          setIsDirty(true);
-          setFormatCursor({ start: its + 1, end: ite + 1 });
+          applyFormatting(textarea, nt, its + 1, ite + 1);
           setShowInlineMenu(false);
           setShowInlineButton(true);
           break;
@@ -271,9 +275,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
             }
           }
           const nt = text.substring(0, lr.start) + prefix + stripped + text.substring(lr.end);
-          setEditContent(nt);
-          setIsDirty(true);
-          setFormatCursor({ start: lr.start + prefix.length, end: lr.start + prefix.length });
+          applyFormatting(textarea, nt, lr.start + prefix.length, lr.start + prefix.length);
           setShowInlineMenu(false);
           setShowInlineButton(true);
           break;
@@ -284,9 +286,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           const { s: ls, e: le } = isSel ? trimSel(start, end) : getLineRange(text, start);
           const lt = text.substring(ls, le);
           const nt = text.substring(0, ls) + '[' + lt + ']()' + text.substring(le);
-          setEditContent(nt);
-          setIsDirty(true);
-          setFormatCursor({ start: ls + 1, end: ls + lt.length + 1 });
+          applyFormatting(textarea, nt, ls + 1, ls + lt.length + 1);
           setShowInlineMenu(false);
           setShowInlineButton(true);
           break;
@@ -297,9 +297,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           const { s: cs, e: ce } = isSel ? trimSel(start, end) : getLineRange(text, start);
           const lt = text.substring(cs, ce);
           const nt = text.substring(0, cs) + '`' + lt + '`' + text.substring(ce);
-          setEditContent(nt);
-          setIsDirty(true);
-          setFormatCursor({ start: cs + 1, end: ce + 1 });
+          applyFormatting(textarea, nt, cs + 1, ce + 1);
           setShowInlineMenu(false);
           setShowInlineButton(true);
           break;
