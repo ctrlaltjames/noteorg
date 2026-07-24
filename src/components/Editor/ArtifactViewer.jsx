@@ -34,6 +34,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const MAX_UNDO = 100;
   let skipUndoPush = false;
   let skipUndoPushOnInput = false;
+  let pendingCursor = 0;
 
   const pushUndo = (text, cursorPos) => {
     undoStackRef.current.push({ text, cursorPos: cursorPos ?? text.length });
@@ -497,10 +498,15 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                       onInput={(e) => {
                         // Push old value to undo stack (editContent is still old at this point)
                         if (!skipUndoPush && !skipUndoPushOnInput) {
-                          pushUndo(editContent, textareaRef.current.selectionStart);
+                          pushUndo(editContent, pendingCursor);
                         }
                         setEditContent(e.target.value);
                         setIsDirty(true);
+                      }}
+                      onKeyDown={(e) => {
+                        if (!e.ctrlKey && !e.metaKey && e.key.length === 1) {
+                          pendingCursor = textareaRef.current.selectionStart;
+                        }
                       }}
                       onMouseUp={handleMouseUp}
                       onClick={handleCursorMove}
@@ -569,10 +575,15 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     defaultValue={editContent}
                     onInput={(e) => {
                       if (!skipUndoPush && !skipUndoPushOnInput) {
-                        pushUndo(editContent, textareaRef.current.selectionStart);
+                        pushUndo(editContent, pendingCursor);
                       }
                       setEditContent(e.target.value);
                       setIsDirty(true);
+                    }}
+                    onKeyDown={(e) => {
+                      if (!e.ctrlKey && !e.metaKey && e.key.length === 1) {
+                        pendingCursor = textareaRef.current.selectionStart;
+                      }
                     }}
                     onMouseUp={handleMouseUp}
                     onClick={handleCursorMove}
