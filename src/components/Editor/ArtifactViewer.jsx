@@ -254,7 +254,15 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           const lr = getLineRange(text, start);
           const lt = text.substring(lr.start, lr.end);
           const prefix = '## ';
-          const nt = text.substring(0, lr.start) + prefix + lt + text.substring(lr.end);
+          let stripped = lt;
+          for (let i = 6; i >= 1; i--) {
+            const existing = '#'.repeat(i) + ' ';
+            if (lt.startsWith(existing)) {
+              stripped = lt.substring(existing.length).trimStart();
+              break;
+            }
+          }
+          const nt = text.substring(0, lr.start) + prefix + stripped + text.substring(lr.end);
           setEditContent(nt);
           setIsDirty(true);
           setFormatCursor({ start: lr.start + prefix.length, end: lr.start + prefix.length });

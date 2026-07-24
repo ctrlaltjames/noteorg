@@ -84,9 +84,19 @@ export default function InlineMenu({ anchor, mode, text, selectionStart, selecti
   const applyHeading = (level) => {
     const { start, end } = getLineRange(selectionStart);
     const lineText = text.substring(start, end);
-    const prefix = '#'.repeat(level) + ' ';
-    const newText = text.substring(0, start) + prefix + lineText + text.substring(end);
-    const newCursor = start + prefix.length;
+    const newPrefix = '#'.repeat(level) + ' ';
+
+    let strippedText = lineText;
+    for (let i = 6; i >= 1; i--) {
+      const existingPrefix = '#'.repeat(i) + ' ';
+      if (lineText.startsWith(existingPrefix)) {
+        strippedText = lineText.substring(existingPrefix.length).trimStart();
+        break;
+      }
+    }
+
+    const newText = text.substring(0, start) + newPrefix + strippedText + text.substring(end);
+    const newCursor = start + newPrefix.length;
 
     onFormat(newText, newCursor, newCursor);
     onClose();
