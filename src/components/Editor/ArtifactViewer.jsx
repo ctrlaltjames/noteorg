@@ -233,7 +233,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           setIsDirty(true);
           setFormatCursor({ start: bs + 2, end: be + 2 });
           setShowInlineMenu(false);
-          setShowInlineButton(false);
+          setShowInlineButton(true);
           break;
         }
         case 'i': {
@@ -246,7 +246,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           setIsDirty(true);
           setFormatCursor({ start: its + 1, end: ite + 1 });
           setShowInlineMenu(false);
-          setShowInlineButton(false);
+          setShowInlineButton(true);
           break;
         }
         case 'h': {
@@ -267,7 +267,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           setIsDirty(true);
           setFormatCursor({ start: lr.start + prefix.length, end: lr.start + prefix.length });
           setShowInlineMenu(false);
-          setShowInlineButton(false);
+          setShowInlineButton(true);
           break;
         }
         case 'k': {
@@ -280,7 +280,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           setIsDirty(true);
           setFormatCursor({ start: ls + 1, end: ls + lt.length + 1 });
           setShowInlineMenu(false);
-          setShowInlineButton(false);
+          setShowInlineButton(true);
           break;
         }
         case '`': {
@@ -293,7 +293,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           setIsDirty(true);
           setFormatCursor({ start: cs + 1, end: ce + 1 });
           setShowInlineMenu(false);
-          setShowInlineButton(false);
+          setShowInlineButton(true);
           break;
         }
         default:
