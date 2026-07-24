@@ -25,6 +25,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const [charWidth, setCharWidth] = useState(8);
 
   const textareaRef = useRef(null);
+  const prevArtifactRef = useRef(artifact.id);
   const gutterRef = useRef(null);
   const editorContainerRef = useRef(null);
   const isNote = artifact.type === 'note';
@@ -56,13 +57,14 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     if (width > 0) setCharWidth(width);
   }, [isEditing]);
 
-  // Sync editContent from DOM when textarea changes
-  const syncEditContent = () => {
+  // Sync DOM when artifact changes (e.g. loading a different note)
+  useEffect(() => {
     const textarea = textareaRef.current;
-    if (textarea) {
-      setEditContent(textarea.value);
+    if (textarea && prevArtifactRef.current !== artifact.id) {
+      textarea.value = artifact.content || '';
+      prevArtifactRef.current = artifact.id;
     }
-  };
+  }, [artifact.id, artifact.content]);
 
   const getLineNumbers = (text) => {
     if (!text) return [1];
@@ -170,9 +172,11 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     if (saving) return;
     setSaving(true);
     try {
+      const textarea = textareaRef.current;
+      const content = textarea ? textarea.value : editContent;
       await updateArtifact(artifact.id, {
         title: editTitle,
-        content: editContent,
+        content,
       });
       setIsDirty(false);
       if (onSaveAndStay) {
@@ -203,7 +207,9 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     textarea.value = newText;
     textarea.selectionStart = newStart;
     textarea.selectionEnd = newEnd;
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    // Sync preview pane
+    setEditContent(newText);
+    setIsDirty(true);
   };
 
   const handleKeyDown = (e) => {
