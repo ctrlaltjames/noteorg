@@ -387,14 +387,17 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                       {showInlineButton && charWidth > 0 && (
                         <div
                           class="absolute left-0 w-8 flex items-center justify-center"
-                          style={{ top: `${(cursorLine - 1) * LINE_HEIGHT}px` }}
+                          style={{ top: `${(cursorLine - 1) * LINE_HEIGHT + 12}px` }}
                         >
                           <button
                             onClick={(e) => { e.stopPropagation(); handleInlineButtonClick(); }}
-                            class="w-6 h-6 flex items-center justify-center rounded hover:bg-white/10 transition-colors theme-text-secondary hover:theme-text text-xs"
+                            class="w-6 h-6 flex items-center justify-center rounded hover:bg-white/10 transition-colors theme-text-secondary hover:theme-text"
                             title="Formatting"
                           >
-                            ⊕
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                              <path d="m15 5 4 4"/>
+                            </svg>
                           </button>
                         </div>
                       )}
@@ -453,14 +456,17 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                       {showInlineButton && charWidth > 0 && (
                         <div
                           class="absolute left-0 w-8 flex items-center justify-center"
-                          style={{ top: `${(cursorLine - 1) * LINE_HEIGHT}px` }}
+                          style={{ top: `${(cursorLine - 1) * LINE_HEIGHT + 12}px` }}
                         >
                           <button
                             onClick={(e) => { e.stopPropagation(); handleInlineButtonClick(); }}
-                            class="w-6 h-6 flex items-center justify-center rounded hover:bg-white/10 transition-colors theme-text-secondary hover:theme-text text-xs"
+                            class="w-6 h-6 flex items-center justify-center rounded hover:bg-white/10 transition-colors theme-text-secondary hover:theme-text"
                             title="Formatting"
                           >
-                            ⊕
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                              <path d="m15 5 4 4"/>
+                            </svg>
                           </button>
                         </div>
                       )}
