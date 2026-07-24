@@ -426,6 +426,17 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                       ref={textareaRef}
                       value={editContent}
                       onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
+                      onKeyDown={(e) => {
+                        if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y')) {
+                          setTimeout(() => {
+                            const ta = textareaRef.current;
+                            if (ta) {
+                              setEditContent(ta.value);
+                              setIsDirty(true);
+                            }
+                          }, 0);
+                        }
+                      }}
                       onMouseUp={handleMouseUp}
                       onClick={handleCursorMove}
                       onKeyUp={handleCursorMove}
@@ -492,6 +503,17 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     ref={textareaRef}
                     value={editContent}
                     onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
+                    onKeyDown={(e) => {
+                      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y')) {
+                        setTimeout(() => {
+                          const ta = textareaRef.current;
+                          if (ta) {
+                            setEditContent(ta.value);
+                            setIsDirty(true);
+                          }
+                        }, 0);
+                      }
+                    }}
                     onMouseUp={handleMouseUp}
                     onClick={handleCursorMove}
                     onKeyUp={handleCursorMove}
