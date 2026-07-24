@@ -421,7 +421,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                         selectionStart={textareaRef.current?.selectionStart ?? 0}
                         selectionEnd={textareaRef.current?.selectionEnd ?? 0}
                         onFormat={handleFormat}
-                        onClose={() => { setShowInlineMenu(false); setShowInlineButton(false); }}
+                        onClose={() => { setShowInlineMenu(false); setShowInlineButton(true); }}
                       />
                     )}
                   </div>
@@ -487,7 +487,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                       selectionStart={textareaRef.current?.selectionStart ?? 0}
                       selectionEnd={textareaRef.current?.selectionEnd ?? 0}
                       onFormat={handleFormat}
-                      onClose={() => { setShowInlineMenu(false); setShowInlineButton(false); }}
+                      onClose={() => { setShowInlineMenu(false); setShowInlineButton(true); }}
                     />
                   )}
                 </div>
