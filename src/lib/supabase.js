@@ -33,6 +33,7 @@ create table if not exists tags (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
   name text not null,
+  color text default '#58a6ff',
   created_at timestamptz default now()
 );
 

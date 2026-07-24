@@ -10,7 +10,7 @@ const GUTTER_WIDTH = 48;
 const FORMAT_GUTTER_WIDTH = 32;
 const TOTAL_GUTTER_WIDTH = GUTTER_WIDTH + FORMAT_GUTTER_WIDTH;
 
-export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEdit, onClose, onSave, onSaveAndStay }) {
+export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEdit, onClose, onSave, onSaveAndStay, onOpenOrganize }) {
   const { updateArtifact, deleteArtifact, loadData } = useApp();
   const [editTitle, setEditTitle] = useState(artifact.title || '');
   const [editContent, setEditContent] = useState(artifact.content || '');
@@ -408,8 +408,20 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           </span>
           <div class="w-px h-5 bg-[var(--border-color)]" />
           <button
+            onClick={onOpenOrganize}
+            class="theme-text-secondary hover:text-yellow-300 transition-colors p-1.5 rounded"
+            title="Organize (tags & folder)"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              <line x1="9" y1="14" x2="9" y2="14.01" />
+              <line x1="15" y1="10" x2="15" y2="10.01" />
+              <line x1="12" y1="12" x2="12.01" y2="12" />
+            </svg>
+          </button>
+          <button
             onClick={() => setShowSplit(!showSplit)}
-            class={`p-1.5 rounded transition-colors ${showSplit ? 'theme-text' : 'theme-text-secondary'} hover:bg-white/5 hover:text-yellow-300`}
+            class={`p-1.5 rounded transition-colors ${showSplit ? 'theme-text' : 'theme-text-secondary'} hover:bg-white/5 hover:text-[var(--text-accent)]`}
             title="Toggle split view"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -634,6 +646,19 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
         <span class={`text-xs px-2 py-0.5 rounded capitalize ${isNote ? 'bg-[var(--text-accent)]/20 text-[var(--text-accent)]' : 'bg-[var(--btn-primary)]/20 text-[var(--btn-primary)]'}`}>
           {artifact.type}
         </span>
+        <div class="w-px h-5 bg-[var(--border-color)]" />
+        <button
+          onClick={onOpenOrganize}
+          class="theme-text-secondary hover:text-yellow-300 transition-colors p-1.5 rounded"
+          title="Organize (tags & folder)"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+            <line x1="9" y1="14" x2="9" y2="14.01" />
+            <line x1="15" y1="10" x2="15" y2="10.01" />
+            <line x1="12" y1="12" x2="12.01" y2="12" />
+          </svg>
+        </button>
       </div>
 
       {/* Content */}
@@ -644,9 +669,13 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
           {/* Tags */}
           {artifact.tagNames?.length > 0 && (
             <div class="flex flex-wrap gap-1.5 mb-4">
-              {artifact.tagNames.map((tag) => (
-                <span key={tag} class="text-xs bg-[var(--border-color)]/30 theme-text-secondary px-2 py-1 rounded">
-                  {tag}
+              {artifact.tagNames.map((tag, idx) => (
+                <span
+                  key={idx}
+                  class="text-xs px-2 py-1 rounded"
+                  style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
+                >
+                  {tag.name}
                 </span>
               ))}
             </div>

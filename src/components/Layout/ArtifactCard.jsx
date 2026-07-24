@@ -72,9 +72,13 @@ export default function ArtifactCard({ artifact, isSelected, onClick, onEdit, on
           {/* Tags */}
           {artifact.tagNames?.length > 0 && (
             <div class="flex flex-wrap gap-1 mt-2">
-              {artifact.tagNames.slice(0, 3).map((tag) => (
-                <span key={tag} class="text-xs theme-bg-border/30 theme-text-secondary px-1.5 py-0.5 rounded">
-                  {tag}
+              {artifact.tagNames.slice(0, 3).map((tag, idx) => (
+                <span
+                  key={idx}
+                  class="text-xs px-1.5 py-0.5 rounded"
+                  style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
+                >
+                  {tag.name}
                 </span>
               ))}
               {artifact.tagNames.length > 3 && (

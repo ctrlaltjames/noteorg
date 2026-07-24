@@ -3,11 +3,17 @@ import { useApp } from '@context/AppContext';
 import Sidebar from './Sidebar';
 import ArtifactViewer from '../Editor/ArtifactViewer';
 import QuickAddModal from '../Modals/QuickAdd';
+import OrganizerModal from '../Modals/OrganizerModal';
+import TagManagerModal from '../Modals/TagManagerModal';
+import FolderManagerModal from '../Modals/FolderManagerModal';
 
 export default function AppLayout() {
   const { selectedArtifact, setSelectedArtifact, loadData, refreshArtifact, deleteArtifact } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [showOrganizer, setShowOrganizer] = useState(false);
+  const [showTagManager, setShowTagManager] = useState(false);
+  const [showFolderManager, setShowFolderManager] = useState(false);
 
   const handleArtifactSelect = async (artifact) => {
     setSelectedArtifact(artifact);
@@ -71,6 +77,8 @@ export default function AppLayout() {
         onArtifactSelect={handleArtifactSelect}
         onEditArtifact={handleEditFromSidebar}
         onDeleteArtifact={handleDeleteFromSidebar}
+        onOpenTagManager={() => setShowTagManager(true)}
+        onOpenFolderManager={() => setShowFolderManager(true)}
       />
 
       {/* Main area */}
@@ -84,6 +92,7 @@ export default function AppLayout() {
             onClose={handleClose}
             onSave={handleSave}
             onSaveAndStay={handleSaveAndStay}
+            onOpenOrganize={() => setShowOrganizer(true)}
           />
         ) : (
           <div class="h-full flex items-center justify-center theme-text-secondary">
@@ -111,6 +120,27 @@ export default function AppLayout() {
       {showQuickAdd && (
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowQuickAdd(false)}>
           <QuickAddModal onClose={() => setShowQuickAdd(false)} />
+        </div>
+      )}
+
+      {/* Organizer modal */}
+      {showOrganizer && (
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowOrganizer(false)}>
+          <OrganizerModal artifact={selectedArtifact} onClose={() => setShowOrganizer(false)} />
+        </div>
+      )}
+
+      {/* Tag Manager modal */}
+      {showTagManager && (
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowTagManager(false)}>
+          <TagManagerModal onClose={() => setShowTagManager(false)} />
+        </div>
+      )}
+
+      {/* Folder Manager modal */}
+      {showFolderManager && (
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowFolderManager(false)}>
+          <FolderManagerModal onClose={() => setShowFolderManager(false)} />
         </div>
       )}
     </div>

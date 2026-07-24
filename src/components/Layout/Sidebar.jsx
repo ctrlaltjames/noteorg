@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import { useApp } from '@context/AppContext';
 import ArtifactList from './ArtifactList';
 
-export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifact, onDeleteArtifact }) {
+export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifact, onDeleteArtifact, onOpenTagManager, onOpenFolderManager }) {
   const {
     searchQuery,
     setSearchQuery,
@@ -111,7 +111,16 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
           <div class="mt-2 space-y-3">
             {/* Tags */}
             <div>
-              <h4 class="text-xs font-medium theme-text-secondary mb-1.5 uppercase tracking-wider">Tags</h4>
+              <div class="flex items-center justify-between mb-1.5">
+                <h4 class="text-xs font-medium theme-text-secondary uppercase tracking-wider">Tags</h4>
+                <button
+                  onClick={onOpenTagManager}
+                  class="text-xs theme-text-secondary hover:theme-text transition-colors"
+                  title="Manage tags"
+                >
+                  Manage
+                </button>
+              </div>
               {tags.length === 0 ? (
                 <p class="text-xs theme-text-secondary">No tags yet</p>
               ) : (
@@ -123,8 +132,9 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
                       class={`text-xs px-2 py-1 rounded transition-colors ${
                         activeTag === tag.name
                           ? 'bg-[var(--text-accent)]/20 theme-text-accent'
-                          : 'theme-bg-border/30 theme-text-secondary hover:theme-bg-border/20'
+                          : 'theme-text-secondary hover:theme-bg-border/20'
                       }`}
+                      style={activeTag !== tag.name ? { backgroundColor: `${tag.color}20`, color: tag.color } : undefined}
                     >
                       {tag.name}
                     </button>
@@ -135,7 +145,16 @@ export default function Sidebar({ onOpenQuickAdd, onArtifactSelect, onEditArtifa
 
             {/* Folders */}
             <div>
-              <h4 class="text-xs font-medium theme-text-secondary mb-1.5 uppercase tracking-wider">Folders</h4>
+              <div class="flex items-center justify-between mb-1.5">
+                <h4 class="text-xs font-medium theme-text-secondary uppercase tracking-wider">Folders</h4>
+                <button
+                  onClick={onOpenFolderManager}
+                  class="text-xs theme-text-secondary hover:theme-text transition-colors"
+                  title="Manage folders"
+                >
+                  Manage
+                </button>
+              </div>
               {folders.length === 0 ? (
                 <p class="text-xs theme-text-secondary">No folders yet</p>
               ) : (

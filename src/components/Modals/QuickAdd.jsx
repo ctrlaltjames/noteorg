@@ -284,15 +284,20 @@ export default function QuickAddModal({ onClose }) {
           {/* Selected tags */}
           {selectedTags.length > 0 && (
             <div class="flex flex-wrap gap-1">
-              {selectedTags.map((tag) => (
-                <span
-                  key={tag}
-                  class="flex items-center gap-1 text-xs bg-[var(--text-accent)]/20 text-[var(--text-accent)] px-2 py-1 rounded"
-                >
-                  {tag}
-                  <button onClick={() => handleRemoveTag(tag)} class="hover:text-[var(--btn-danger)]">&times;</button>
-                </span>
-              ))}
+              {selectedTags.map((tagName) => {
+                const tagData = tags.find((t) => t.name === tagName);
+                const color = tagData?.color || '#58a6ff';
+                return (
+                  <span
+                    key={tagName}
+                    class="flex items-center gap-1 text-xs px-2 py-1 rounded"
+                    style={{ backgroundColor: `${color}20`, color }}
+                  >
+                    {tagName}
+                    <button onClick={() => handleRemoveTag(tagName)} class="hover:text-[var(--btn-danger)]">&times;</button>
+                  </span>
+                );
+              })}
             </div>
           )}
 
@@ -306,7 +311,8 @@ export default function QuickAddModal({ onClose }) {
                   <button
                     key={tag.id}
                     onClick={() => handleAddTag(tag.name)}
-                    class="text-xs bg-[var(--border-color)]/30 theme-text-secondary px-2 py-1 rounded hover:bg-[var(--border-color)]/50"
+                    class="text-xs px-2 py-1 rounded hover:opacity-80"
+                    style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
                   >
                     {tag.name}
                   </button>
