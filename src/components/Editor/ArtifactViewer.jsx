@@ -33,6 +33,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const isNote = artifact.type === 'note';
   const MAX_UNDO = 100;
   let skipUndoPush = false;
+  let skipUndoPushOnInput = false;
 
   const pushUndo = (text, cursorPos) => {
     undoStackRef.current.push({ text, cursorPos: cursorPos ?? text.length });
@@ -50,11 +51,15 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     const prev = undoStackRef.current.pop();
     if (prev === undefined) return;
     redoStackRef.current.push({ text: current, cursorPos: currentCursor });
+    skipUndoPushOnInput = true;
     textarea.value = prev.text;
-    textarea.selectionStart = prev.cursorPos;
-    textarea.selectionEnd = prev.cursorPos;
     setEditContent(prev.text);
     setIsDirty(true);
+    requestAnimationFrame(() => {
+      skipUndoPushOnInput = false;
+      textarea.selectionStart = prev.cursorPos;
+      textarea.selectionEnd = prev.cursorPos;
+    });
   };
 
   const handleRedo = () => {
@@ -65,11 +70,15 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     const next = redoStackRef.current.pop();
     if (next === undefined) return;
     undoStackRef.current.push({ text: current, cursorPos: currentCursor });
+    skipUndoPushOnInput = true;
     textarea.value = next.text;
-    textarea.selectionStart = next.cursorPos;
-    textarea.selectionEnd = next.cursorPos;
     setEditContent(next.text);
     setIsDirty(true);
+    requestAnimationFrame(() => {
+      skipUndoPushOnInput = false;
+      textarea.selectionStart = next.cursorPos;
+      textarea.selectionEnd = next.cursorPos;
+    });
   };
 
   // Update local state when artifact changes
@@ -487,7 +496,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                       defaultValue={editContent}
                       onInput={(e) => {
                         // Push old value to undo stack (editContent is still old at this point)
-                        if (!skipUndoPush) {
+                        if (!skipUndoPush && !skipUndoPushOnInput) {
                           pushUndo(editContent, textareaRef.current.selectionStart);
                         }
                         setEditContent(e.target.value);
@@ -559,7 +568,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     ref={textareaRef}
                     defaultValue={editContent}
                     onInput={(e) => {
-                      if (!skipUndoPush) {
+                      if (!skipUndoPush && !skipUndoPushOnInput) {
                         pushUndo(editContent, textareaRef.current.selectionStart);
                       }
                       setEditContent(e.target.value);
