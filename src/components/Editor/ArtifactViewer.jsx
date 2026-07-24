@@ -216,6 +216,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
       onCancelEdit();
     }
     if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+      if (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y') return;
       const textarea = textareaRef.current;
       if (!textarea) return;
       const text = textarea.value;
