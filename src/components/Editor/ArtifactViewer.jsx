@@ -23,7 +23,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
   const [showInlineButton, setShowInlineButton] = useState(false);
   const [charWidth, setCharWidth] = useState(8);
-  const [formatCursor, setFormatCursor] = useState(null);
+
   const textareaRef = useRef(null);
   const gutterRef = useRef(null);
   const editorContainerRef = useRef(null);
@@ -56,17 +56,13 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     if (width > 0) setCharWidth(width);
   }, [isEditing]);
 
-  // Apply formatting cursor after state update
-  useEffect(() => {
-    if (formatCursor) {
-      const textarea = textareaRef.current;
-      if (textarea) {
-        textarea.selectionStart = formatCursor.start;
-        textarea.selectionEnd = formatCursor.end;
-      }
-      setFormatCursor(null);
+  // Sync editContent from DOM when textarea changes
+  const syncEditContent = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      setEditContent(textarea.value);
     }
-  }, [editContent, formatCursor]);
+  };
 
   const getLineNumbers = (text) => {
     if (!text) return [1];
@@ -422,19 +418,8 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     </div>
                     <textarea
                       ref={textareaRef}
-                      value={editContent}
+                      defaultValue={editContent}
                       onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
-                      onKeyDown={(e) => {
-                        if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y')) {
-                          setTimeout(() => {
-                            const ta = textareaRef.current;
-                            if (ta) {
-                              setEditContent(ta.value);
-                              setIsDirty(true);
-                            }
-                          }, 0);
-                        }
-                      }}
                       onMouseUp={handleMouseUp}
                       onClick={handleCursorMove}
                       onKeyUp={handleCursorMove}
@@ -499,19 +484,8 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     </div>
                   <textarea
                     ref={textareaRef}
-                    value={editContent}
+                    defaultValue={editContent}
                     onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
-                    onKeyDown={(e) => {
-                      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y')) {
-                        setTimeout(() => {
-                          const ta = textareaRef.current;
-                          if (ta) {
-                            setEditContent(ta.value);
-                            setIsDirty(true);
-                          }
-                        }, 0);
-                      }
-                    }}
                     onMouseUp={handleMouseUp}
                     onClick={handleCursorMove}
                     onKeyUp={handleCursorMove}
