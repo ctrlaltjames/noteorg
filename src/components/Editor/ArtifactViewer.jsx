@@ -4,7 +4,7 @@ import { renderMarkdown, getPreview } from '@utils/markdown';
 import { deleteImage } from '@utils/images';
 import { supabase } from '@lib/supabase';
 
-export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEdit, onClose, onSave }) {
+export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEdit, onClose, onSave, onSaveAndStay }) {
   const { updateArtifact, deleteArtifact, loadData } = useApp();
   const [editTitle, setEditTitle] = useState(artifact.title || '');
   const [editContent, setEditContent] = useState(artifact.content || '');
@@ -12,6 +12,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [cursorLine, setCursorLine] = useState(1);
   const [showSplit, setShowSplit] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const textareaRef = useRef(null);
   const gutterRef = useRef(null);
   const isNote = artifact.type === 'note';
@@ -20,6 +21,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   useEffect(() => {
     setEditTitle(artifact.title || '');
     setEditContent(artifact.content || '');
+    setIsDirty(false);
   }, [artifact.id]);
 
   // Enable split view by default when entering edit mode
@@ -80,7 +82,12 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
         title: editTitle,
         content: editContent,
       });
-      onSave();
+      setIsDirty(false);
+      if (onSaveAndStay) {
+        await onSaveAndStay();
+      } else {
+        onSave();
+      }
     } catch (err) {
       console.error('Failed to save:', err);
     } finally {
@@ -166,6 +173,9 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
             </svg>
           </button>
+          {isDirty && (
+            <span class="text-xs theme-text-secondary ml-auto">Not saved</span>
+          )}
         </div>
 
         <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
@@ -174,7 +184,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
             <input
               type="text"
               value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
+              onChange={(e) => { setEditTitle(e.target.value); setIsDirty(true); }}
               placeholder="Artifact title..."
               class="w-full text-xl font-bold bg-transparent border-none outline-none theme-text"
             />
@@ -197,7 +207,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     <textarea
                       ref={textareaRef}
                       value={editContent}
-                      onInput={(e) => setEditContent(e.target.value)}
+                      onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
                       onClick={handleCursorMove}
                       onKeyUp={handleCursorMove}
                       onSelect={handleCursorMove}

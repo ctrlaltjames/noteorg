@@ -51,6 +51,14 @@ export default function AppLayout() {
     setIsEditing(false);
   };
 
+  const handleSaveAndStay = async () => {
+    await loadData();
+    const updated = await refreshArtifact(selectedArtifact.id);
+    if (updated) {
+      setSelectedArtifact(updated);
+    }
+  };
+
   const handleCancelEdit = () => {
     setIsEditing(false);
   };
@@ -75,6 +83,7 @@ export default function AppLayout() {
             onCancelEdit={handleCancelEdit}
             onClose={handleClose}
             onSave={handleSave}
+            onSaveAndStay={handleSaveAndStay}
           />
         ) : (
           <div class="h-full flex items-center justify-center theme-text-secondary">
