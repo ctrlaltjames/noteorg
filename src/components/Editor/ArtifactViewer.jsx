@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'preact/hooks';
+import { useState, useRef, useEffect, useLayoutEffect } from 'preact/hooks';
 import { useApp } from '@context/AppContext';
 import { renderMarkdown, getPreview } from '@utils/markdown';
 import { deleteImage } from '@utils/images';
@@ -22,7 +22,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const [showInlineMenu, setShowInlineMenu] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
   const [showInlineButton, setShowInlineButton] = useState(false);
-  const [charWidth, setCharWidth] = useState(0);
+  const [charWidth, setCharWidth] = useState(8);
   const [formatCursor, setFormatCursor] = useState(null);
   const textareaRef = useRef(null);
   const gutterRef = useRef(null);
@@ -44,7 +44,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   }, [isEditing]);
 
   // Measure character width for cursor positioning
-  useEffect(() => {
+  useLayoutEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -53,7 +53,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     const styles = window.getComputedStyle(textarea);
     ctx.font = styles.font;
     const width = ctx.measureText('m').width;
-    setCharWidth(width);
+    if (width > 0) setCharWidth(width);
   }, [isEditing]);
 
   // Apply formatting cursor after state update
