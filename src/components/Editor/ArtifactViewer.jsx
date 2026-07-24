@@ -288,54 +288,56 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
       <div class="flex-1 overflow-y-auto p-6">
         <h1 class="text-2xl font-bold theme-text mb-4">{artifact.title || 'Untitled'}</h1>
 
-        {/* Tags */}
-        {artifact.tagNames?.length > 0 && (
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            {artifact.tagNames.map((tag) => (
-              <span key={tag} class="text-xs bg-[var(--border-color)]/30 theme-text-secondary px-2 py-1 rounded">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+        <div class="max-w-[70ch]">
+          {/* Tags */}
+          {artifact.tagNames?.length > 0 && (
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              {artifact.tagNames.map((tag) => (
+                <span key={tag} class="text-xs bg-[var(--border-color)]/30 theme-text-secondary px-2 py-1 rounded">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
 
-        {/* Note content */}
-        {isNote ? (
-          <div
-            class="prose prose-sm max-w-none theme-text"
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(artifact.content) }}
-          />
-        ) : (
-          /* Image content */
-          <div class="flex flex-col items-center">
-            <img
-              src={metadata.storagePath ? supabase.storage.from('images').getPublicUrl(metadata.storagePath).data.publicUrl : ''}
-              alt={artifact.title}
-              class="max-w-full h-auto rounded-lg shadow-lg"
-              onError={(e) => {
-                e.target.src = '';
-                e.target.alt = 'Image not found';
-              }}
+          {/* Note content */}
+          {isNote ? (
+            <div
+              class="prose prose-sm max-w-none theme-text"
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(artifact.content) }}
             />
-            {metadata.width && metadata.height && (
-              <p class="text-xs theme-text-secondary mt-2">
-                {metadata.width} x {metadata.height}
-              </p>
+          ) : (
+            /* Image content */
+            <div class="flex flex-col items-center">
+              <img
+                src={metadata.storagePath ? supabase.storage.from('images').getPublicUrl(metadata.storagePath).data.publicUrl : ''}
+                alt={artifact.title}
+                class="max-w-full h-auto rounded-lg shadow-lg"
+                onError={(e) => {
+                  e.target.src = '';
+                  e.target.alt = 'Image not found';
+                }}
+              />
+              {metadata.width && metadata.height && (
+                <p class="text-xs theme-text-secondary mt-2">
+                  {metadata.width} x {metadata.height}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Metadata */}
+          <div class="mt-6 pt-4 border-t theme-border text-xs theme-text-secondary">
+            <div class="flex items-center gap-4">
+              <span>Created: {new Date(artifact.created_at).toLocaleString()}</span>
+              <span>Updated: {new Date(artifact.updated_at).toLocaleString()}</span>
+            </div>
+            {isNote && artifact.content && (
+              <span class="block mt-1">
+                {artifact.content.split(/\s+/).filter(Boolean).length} words
+              </span>
             )}
           </div>
-        )}
-
-        {/* Metadata */}
-        <div class="mt-6 pt-4 border-t theme-border text-xs theme-text-secondary">
-          <div class="flex items-center gap-4">
-            <span>Created: {new Date(artifact.created_at).toLocaleString()}</span>
-            <span>Updated: {new Date(artifact.updated_at).toLocaleString()}</span>
-          </div>
-          {isNote && artifact.content && (
-            <span class="block mt-1">
-              {artifact.content.split(/\s+/).filter(Boolean).length} words
-            </span>
-          )}
         </div>
       </div>
     </div>
