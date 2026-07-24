@@ -394,3 +394,54 @@ a:hover {
 .gutter-border {
   border-color: var(--border-color);
 }
+
+/* Format gutter */
+.format-gutter {
+  border-left: 1px solid var(--border-color);
+  background-color: var(--bg-panel);
+}
+
+/* Inline menu button */
+.format-gutter button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.1s ease, color 0.1s ease;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.format-gutter button:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Inline menu */
+.inline-menu-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background-color 0.1s ease, color 0.1s ease;
+  color: var(--text-secondary);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.inline-menu-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.inline-menu-btn .shortcut {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-top: 2px;
+}

@@ -3,6 +3,12 @@ import { useApp } from '@context/AppContext';
 import { renderMarkdown, getPreview } from '@utils/markdown';
 import { deleteImage } from '@utils/images';
 import { supabase } from '@lib/supabase';
+import InlineMenu from './InlineMenu';
+
+const LINE_HEIGHT = 26;
+const GUTTER_WIDTH = 48;
+const FORMAT_GUTTER_WIDTH = 32;
+const TOTAL_GUTTER_WIDTH = GUTTER_WIDTH + FORMAT_GUTTER_WIDTH;
 
 export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEdit, onClose, onSave, onSaveAndStay }) {
   const { updateArtifact, deleteArtifact, loadData } = useApp();
@@ -13,8 +19,14 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const [cursorLine, setCursorLine] = useState(1);
   const [showSplit, setShowSplit] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [showInlineMenu, setShowInlineMenu] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
+  const [showInlineButton, setShowInlineButton] = useState(false);
+  const [charWidth, setCharWidth] = useState(0);
+  const [formatCursor, setFormatCursor] = useState(null);
   const textareaRef = useRef(null);
   const gutterRef = useRef(null);
+  const editorContainerRef = useRef(null);
   const isNote = artifact.type === 'note';
 
   // Update local state when artifact changes
@@ -30,6 +42,31 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
       setShowSplit(true);
     }
   }, [isEditing]);
+
+  // Measure character width for cursor positioning
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const styles = window.getComputedStyle(textarea);
+    ctx.font = styles.font;
+    const width = ctx.measureText('m').width;
+    setCharWidth(width);
+  }, [isEditing]);
+
+  // Apply formatting cursor after state update
+  useEffect(() => {
+    if (formatCursor) {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.selectionStart = formatCursor.start;
+        textarea.selectionEnd = formatCursor.end;
+      }
+      setFormatCursor(null);
+    }
+  }, [editContent, formatCursor]);
 
   const getLineNumbers = (text) => {
     if (!text) return [1];
@@ -49,13 +86,64 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     setCursorLine(getCurrentLine(textarea.value, textarea.selectionStart));
   };
 
+  const handleMouseUp = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+    const selection = selectionEnd - selectionStart;
+
+    if (selection > 0) {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const rect = sel.getRangeAt(0).getBoundingClientRect();
+        setMenuAnchor({ x: rect.right + 8, y: rect.top });
+        setShowInlineMenu(true);
+        setShowInlineButton(false);
+      }
+    } else {
+      const lineNum = getCurrentLine(textarea.value, selectionStart);
+      setCursorLine(lineNum);
+      setShowInlineButton(true);
+      setShowInlineMenu(false);
+    }
+  };
+
+  const handleInlineButtonClick = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const selectionStart = textarea.selectionStart;
+    const lineNum = getCurrentLine(textarea.value, selectionStart);
+    const lineStart = textarea.value.lastIndexOf('\n', selectionStart - 1) + 1;
+    const charOffset = selectionStart - lineStart;
+
+    const textareaRect = textarea.getBoundingClientRect();
+    const x = textareaRect.left + TOTAL_GUTTER_WIDTH + charOffset * charWidth;
+    const y = textareaRect.top + (lineNum - 1) * LINE_HEIGHT;
+
+    setMenuAnchor({ x, y });
+    setShowInlineMenu(true);
+    setShowInlineButton(false);
+  };
+
+  const handleFormat = (newText, newStart, newEnd) => {
+    setEditContent(newText);
+    setIsDirty(true);
+    setFormatCursor({ start: newStart, end: newEnd });
+  };
+
   const handleScroll = () => {
     const textarea = textareaRef.current;
     const gutter = gutterRef.current;
     if (textarea && gutter) {
       gutter.scrollTop = textarea.scrollTop;
     }
+    setShowInlineMenu(false);
+    setShowInlineButton(false);
   };
+
 
   const lineNumbers = getLineNumbers(editContent);
 
@@ -113,8 +201,99 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
       handleSave();
     }
     if (e.key === 'Escape' && isEditing) {
+      if (showInlineMenu) {
+        e.preventDefault();
+        setShowInlineMenu(false);
+        return;
+      }
       onCancelEdit();
     }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      const text = textarea.value;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      switch (e.key.toLowerCase()) {
+        case 'b': {
+          e.preventDefault();
+          const isSel = start !== end;
+          const { s: bs, e: be } = isSel ? { s: start, e: end } : getLineRange(text, start);
+          const lt = text.substring(bs, be);
+          const nt = text.substring(0, bs) + '**' + lt + '**' + text.substring(be);
+          setEditContent(nt);
+          setIsDirty(true);
+          setFormatCursor({ start: bs + 2, end: be + 2 });
+          setShowInlineMenu(false);
+          setShowInlineButton(false);
+          break;
+        }
+        case 'i': {
+          e.preventDefault();
+          const isSel = start !== end;
+          const { s: its, e: ite } = isSel ? { s: start, e: end } : getLineRange(text, start);
+          const lt = text.substring(its, ite);
+          const nt = text.substring(0, its) + '*' + lt + '*' + text.substring(ite);
+          setEditContent(nt);
+          setIsDirty(true);
+          setFormatCursor({ start: its + 1, end: ite + 1 });
+          setShowInlineMenu(false);
+          setShowInlineButton(false);
+          break;
+        }
+        case 'h': {
+          e.preventDefault();
+          const lr = getLineRange(text, start);
+          const lt = text.substring(lr.start, lr.end);
+          const prefix = '## ';
+          const nt = text.substring(0, lr.start) + prefix + lt + text.substring(lr.end);
+          setEditContent(nt);
+          setIsDirty(true);
+          setFormatCursor({ start: lr.start + prefix.length, end: lr.start + prefix.length });
+          setShowInlineMenu(false);
+          setShowInlineButton(false);
+          break;
+        }
+        case 'k': {
+          e.preventDefault();
+          const isSel = start !== end;
+          const { s: ls, e: le } = isSel ? { s: start, e: end } : getLineRange(text, start);
+          const lt = text.substring(ls, le);
+          const nt = text.substring(0, ls) + '[' + lt + ']()' + text.substring(le);
+          setEditContent(nt);
+          setIsDirty(true);
+          setFormatCursor({ start: ls + 1, end: ls + lt.length + 1 });
+          setShowInlineMenu(false);
+          setShowInlineButton(false);
+          break;
+        }
+        case '`': {
+          e.preventDefault();
+          const isSel = start !== end;
+          const { s: cs, e: ce } = isSel ? { s: start, e: end } : getLineRange(text, start);
+          const lt = text.substring(cs, ce);
+          const nt = text.substring(0, cs) + '`' + lt + '`' + text.substring(ce);
+          setEditContent(nt);
+          setIsDirty(true);
+          setFormatCursor({ start: cs + 1, end: ce + 1 });
+          setShowInlineMenu(false);
+          setShowInlineButton(false);
+          break;
+        }
+        default:
+          break;
+      }
+    }
+  };
+
+  const getLineRange = (text, pos) => {
+    const lineStart = text.lastIndexOf('\n', pos - 1) + 1;
+    const lineEnd = text.indexOf('\n', pos);
+    return {
+      start: lineStart,
+      end: lineEnd === -1 ? text.length : lineEnd,
+    };
   };
 
   if (isEditing && artifact.type === 'note') {
@@ -197,26 +376,54 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                 {/* Editor pane */}
                 <div class="flex-1 min-w-0 flex flex-col">
                   <div class="text-xs text-[var(--text-secondary)]/60 mb-1.5 font-medium uppercase tracking-wider">Edit</div>
-                  <div class="flex-1 min-h-0 relative border editor-pane-border rounded">
+                  <div class="flex-1 min-h-0 relative border editor-pane-border rounded" ref={editorContainerRef}>
                     <div
                       ref={gutterRef}
                       class="absolute left-0 top-0 bottom-0 w-12 theme-bg-panel line-numbers-gutter text-sm font-mono text-right select-none overflow-hidden py-3 border-r gutter-border z-10"
                     >
                       {renderLineNumbersJsx()}
                     </div>
+                    <div class="absolute left-12 top-0 bottom-0 w-8 format-gutter z-[5]">
+                      {showInlineButton && charWidth > 0 && (
+                        <div
+                          class="absolute left-0 w-8 flex items-center justify-center"
+                          style={{ top: `${(cursorLine - 1) * LINE_HEIGHT}px` }}
+                        >
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleInlineButtonClick(); }}
+                            class="w-6 h-6 flex items-center justify-center rounded hover:bg-white/10 transition-colors theme-text-secondary hover:theme-text text-xs"
+                            title="Formatting"
+                          >
+                            ⊕
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <textarea
                       ref={textareaRef}
                       value={editContent}
                       onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
+                      onMouseUp={handleMouseUp}
                       onClick={handleCursorMove}
                       onKeyUp={handleCursorMove}
                       onSelect={handleCursorMove}
                       onScroll={handleScroll}
                       placeholder="Start writing..."
-                      class="absolute left-12 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm theme-text font-mono p-3"
+                      class="absolute left-20 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm theme-text font-mono p-3"
                       spellCheck
                       style={{ lineHeight: '1.625rem' }}
                     />
+                    {showInlineMenu && (
+                      <InlineMenu
+                        anchor={menuAnchor}
+                        mode="cursor"
+                        text={editContent}
+                        selectionStart={textareaRef.current?.selectionStart ?? 0}
+                        selectionEnd={textareaRef.current?.selectionEnd ?? 0}
+                        onFormat={handleFormat}
+                        onClose={() => { setShowInlineMenu(false); setShowInlineButton(false); }}
+                      />
+                    )}
                   </div>
                 </div>
                 {/* Preview pane */}
@@ -235,25 +442,54 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
               </div>
             ) : (
               <div class="h-full flex flex-col">
-                <div class="flex-1 min-h-0 relative border editor-pane-border rounded">
+                <div class="flex-1 min-h-0 relative border editor-pane-border rounded" ref={editorContainerRef}>
                     <div
                       ref={gutterRef}
                       class="absolute left-0 top-0 bottom-0 w-12 theme-bg-panel line-numbers-gutter text-sm font-mono text-right select-none overflow-hidden py-3 border-r gutter-border z-10"
                     >
                       {renderLineNumbersJsx()}
                     </div>
+                    <div class="absolute left-12 top-0 bottom-0 w-8 format-gutter z-[5]">
+                      {showInlineButton && charWidth > 0 && (
+                        <div
+                          class="absolute left-0 w-8 flex items-center justify-center"
+                          style={{ top: `${(cursorLine - 1) * LINE_HEIGHT}px` }}
+                        >
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleInlineButtonClick(); }}
+                            class="w-6 h-6 flex items-center justify-center rounded hover:bg-white/10 transition-colors theme-text-secondary hover:theme-text text-xs"
+                            title="Formatting"
+                          >
+                            ⊕
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   <textarea
                     ref={textareaRef}
                     value={editContent}
-                    onInput={(e) => setEditContent(e.target.value)}
+                    onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
+                    onMouseUp={handleMouseUp}
+                    onClick={handleCursorMove}
                     onKeyUp={handleCursorMove}
                     onSelect={handleCursorMove}
                     onScroll={handleScroll}
                     placeholder="Start writing..."
-                    class="absolute left-12 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm theme-text font-mono p-3"
+                    class="absolute left-20 right-0 top-0 bottom-0 resize-none bg-transparent border-none outline-none text-sm theme-text font-mono p-3"
                     spellCheck
                     style={{ lineHeight: '1.625rem' }}
                   />
+                  {showInlineMenu && (
+                    <InlineMenu
+                      anchor={menuAnchor}
+                      mode="cursor"
+                      text={editContent}
+                      selectionStart={textareaRef.current?.selectionStart ?? 0}
+                      selectionEnd={textareaRef.current?.selectionEnd ?? 0}
+                      onFormat={handleFormat}
+                      onClose={() => { setShowInlineMenu(false); setShowInlineButton(false); }}
+                    />
+                  )}
                 </div>
               </div>
             )}
