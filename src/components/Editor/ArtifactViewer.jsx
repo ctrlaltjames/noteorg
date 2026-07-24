@@ -33,8 +33,8 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const isNote = artifact.type === 'note';
   const MAX_UNDO = 100;
 
-  const pushUndo = (text) => {
-    undoStackRef.current.push(text);
+  const pushUndo = (text, cursorPos) => {
+    undoStackRef.current.push({ text, cursorPos: cursorPos ?? text.length });
     if (undoStackRef.current.length > MAX_UNDO) {
       undoStackRef.current.shift();
     }
@@ -45,13 +45,14 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     const textarea = textareaRef.current;
     if (!textarea || undoStackRef.current.length === 0) return;
     const current = textarea.value;
+    const currentCursor = textarea.selectionStart;
     const prev = undoStackRef.current.pop();
     if (prev === undefined) return;
-    redoStackRef.current.push(current);
-    textarea.value = prev;
-    textarea.selectionStart = prev.length;
-    textarea.selectionEnd = prev.length;
-    setEditContent(prev);
+    redoStackRef.current.push({ text: current, cursorPos: currentCursor });
+    textarea.value = prev.text;
+    textarea.selectionStart = prev.cursorPos;
+    textarea.selectionEnd = prev.cursorPos;
+    setEditContent(prev.text);
     setIsDirty(true);
   };
 
@@ -59,13 +60,14 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
     const textarea = textareaRef.current;
     if (!textarea || redoStackRef.current.length === 0) return;
     const current = textarea.value;
+    const currentCursor = textarea.selectionStart;
     const next = redoStackRef.current.pop();
     if (next === undefined) return;
-    undoStackRef.current.push(current);
-    textarea.value = next;
-    textarea.selectionStart = next.length;
-    textarea.selectionEnd = next.length;
-    setEditContent(next);
+    undoStackRef.current.push({ text: current, cursorPos: currentCursor });
+    textarea.value = next.text;
+    textarea.selectionStart = next.cursorPos;
+    textarea.selectionEnd = next.cursorPos;
+    setEditContent(next.text);
     setIsDirty(true);
   };
 
@@ -244,7 +246,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
 
   const applyFormatting = (textarea, newText, newStart, newEnd) => {
     // Push current value to undo stack before formatting
-    pushUndo(textarea.value);
+    pushUndo(textarea.value, textarea.selectionStart);
     textarea.value = newText;
     textarea.selectionStart = newStart;
     textarea.selectionEnd = newEnd;
@@ -482,7 +484,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                       defaultValue={editContent}
                       onInput={(e) => {
                         // Push old value to undo stack (editContent is still old at this point)
-                        pushUndo(editContent);
+                        pushUndo(editContent, textareaRef.current.selectionStart);
                         setEditContent(e.target.value);
                         setIsDirty(true);
                       }}
@@ -552,7 +554,7 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     ref={textareaRef}
                     defaultValue={editContent}
                     onInput={(e) => {
-                      pushUndo(editContent);
+                      pushUndo(editContent, textareaRef.current.selectionStart);
                       setEditContent(e.target.value);
                       setIsDirty(true);
                     }}
