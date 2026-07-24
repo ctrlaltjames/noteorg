@@ -28,7 +28,46 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   const prevArtifactRef = useRef(artifact.id);
   const gutterRef = useRef(null);
   const editorContainerRef = useRef(null);
+  const undoStackRef = useRef([]);
+  const redoStackRef = useRef([]);
   const isNote = artifact.type === 'note';
+  const MAX_UNDO = 100;
+
+  const pushUndo = (text) => {
+    undoStackRef.current.push(text);
+    if (undoStackRef.current.length > MAX_UNDO) {
+      undoStackRef.current.shift();
+    }
+    redoStackRef.current = [];
+  };
+
+  const handleUndo = () => {
+    const textarea = textareaRef.current;
+    if (!textarea || undoStackRef.current.length === 0) return;
+    const current = textarea.value;
+    const prev = undoStackRef.current.pop();
+    if (prev === undefined) return;
+    redoStackRef.current.push(current);
+    textarea.value = prev;
+    textarea.selectionStart = prev.length;
+    textarea.selectionEnd = prev.length;
+    setEditContent(prev);
+    setIsDirty(true);
+  };
+
+  const handleRedo = () => {
+    const textarea = textareaRef.current;
+    if (!textarea || redoStackRef.current.length === 0) return;
+    const current = textarea.value;
+    const next = redoStackRef.current.pop();
+    if (next === undefined) return;
+    undoStackRef.current.push(current);
+    textarea.value = next;
+    textarea.selectionStart = next.length;
+    textarea.selectionEnd = next.length;
+    setEditContent(next);
+    setIsDirty(true);
+  };
 
   // Update local state when artifact changes
   useEffect(() => {
@@ -204,6 +243,8 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
   };
 
   const applyFormatting = (textarea, newText, newStart, newEnd) => {
+    // Push current value to undo stack before formatting
+    pushUndo(textarea.value);
     textarea.value = newText;
     textarea.selectionStart = newStart;
     textarea.selectionEnd = newEnd;
@@ -225,8 +266,22 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
       }
       onCancelEdit();
     }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) {
+      e.preventDefault();
+      handleRedo();
+      return;
+    }
     if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
-      if (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y') return;
+      if (e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        handleUndo();
+        return;
+      }
+      if (e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
+        return;
+      }
       const textarea = textareaRef.current;
       if (!textarea) return;
       const text = textarea.value;
@@ -425,7 +480,12 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                     <textarea
                       ref={textareaRef}
                       defaultValue={editContent}
-                      onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
+                      onInput={(e) => {
+                        // Push old value to undo stack (editContent is still old at this point)
+                        pushUndo(editContent);
+                        setEditContent(e.target.value);
+                        setIsDirty(true);
+                      }}
                       onMouseUp={handleMouseUp}
                       onClick={handleCursorMove}
                       onKeyUp={handleCursorMove}
@@ -491,7 +551,11 @@ export default function ArtifactViewer({ artifact, isEditing, onEdit, onCancelEd
                   <textarea
                     ref={textareaRef}
                     defaultValue={editContent}
-                    onInput={(e) => { setEditContent(e.target.value); setIsDirty(true); }}
+                    onInput={(e) => {
+                      pushUndo(editContent);
+                      setEditContent(e.target.value);
+                      setIsDirty(true);
+                    }}
                     onMouseUp={handleMouseUp}
                     onClick={handleCursorMove}
                     onKeyUp={handleCursorMove}
